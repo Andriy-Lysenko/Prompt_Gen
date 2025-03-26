@@ -786,27 +786,73 @@ if st.session_state.negative_enabled:
 
 # Главный промпт с кнопкой копирования
 st.subheader("Generated Prompt")
-main_prompt_input = st.text_area("Hidden Input", value=st.session_state.main_prompt, height=200, key="main_prompt_area", label_visibility="hidden")
+main_prompt_input = st.text_area("Generated Prompt", value=st.session_state.main_prompt, height=200, key="main_prompt_area")
 st.markdown(
     f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
     unsafe_allow_html=True
 )
-if st.button("Copy Main Prompt to Clipboard", key="copy_main_btn"):
-    pyperclip.copy(main_prompt_input)
-    st.success("Main prompt copied to clipboard!")
+
+# Add a unique ID to the text area for JavaScript to target
+st.markdown(
+    f'<textarea id="main_prompt_text" style="display:none;">{main_prompt_input}</textarea>',
+    unsafe_allow_html=True
+)
+
+# Add a button with JavaScript to copy the text
+st.markdown(
+    """
+    <button onclick="copyMainPrompt()">Copy Main Prompt to Clipboard</button>
+    <script>
+    function copyMainPrompt() {
+        var text = document.getElementById('main_prompt_text').value;
+        navigator.clipboard.writeText(text).then(function() {
+            // Use Streamlit's toast to show a success message
+            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Main prompt copied to clipboard!", toastType: "success"});
+        }, function(err) {
+            // Use Streamlit's toast to show an error message
+            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Failed to copy: " + err, toastType: "error"});
+        });
+    }
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Негативный промпт с кнопкой копирования
 st.subheader("Negative Prompt")
-negative_prompt_input = st.text_area("Hidden Input", value=negative_prompt, height=150, key="negative_prompt_area", label_visibility="hidden")
+negative_prompt_input = st.text_area("Negative Prompt", value=negative_prompt, height=150, key="negative_prompt_area")
 st.markdown(
     f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
     unsafe_allow_html=True
 )
-if st.button("Copy Negative Prompt to Clipboard", key="copy_negative_btn"):
-    pyperclip.copy(negative_prompt_input)
-    st.success("Negative prompt copied to clipboard!")
+
+# Add a unique ID to the text area for JavaScript to target
+st.markdown(
+    f'<textarea id="negative_prompt_text" style="display:none;">{negative_prompt_input}</textarea>',
+    unsafe_allow_html=True
+)
+
+# Add a button with JavaScript to copy the text
+st.markdown(
+    """
+    <button onclick="copyNegativePrompt()">Copy Negative Prompt to Clipboard</button>
+    <script>
+    function copyNegativePrompt() {
+        var text = document.getElementById('negative_prompt_text').value;
+        navigator.clipboard.writeText(text).then(function() {
+            // Use Streamlit's toast to show a success message
+            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Negative prompt copied to clipboard!", toastType: "success"});
+        }, function(err) {
+            // Use Streamlit's toast to show an error message
+            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Failed to copy: " + err, toastType: "error"});
+        });
+    }
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
