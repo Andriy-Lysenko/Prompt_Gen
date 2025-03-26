@@ -2,7 +2,7 @@ import streamlit as st
 import pyperclip
 import json
 
-# Промпты для каждого стиля
+# Промпты для каждого стиляz
 style_prompts = {
     "None": "",
     "Bohemian": "with eclectic decor, vibrant colors, mixed patterns, and layered textiles, featuring natural materials, global influences, and artistic elements",
