@@ -1,2 +1,1 @@
-xclip
-xselect
+sudo apt-get install xclip
