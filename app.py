@@ -784,7 +784,7 @@ negative_prompt = ""
 if st.session_state.negative_enabled:
     negative_prompt = negative_tokens
 
-# Главный промпт с кнопкой копирования
+# Главный промпт с кнопкой копирования (закомментировано)
 st.subheader("Generated Prompt")
 main_prompt_input = st.text_area("Generated Prompt", value=st.session_state.main_prompt, height=200, key="main_prompt_area")
 st.markdown(
@@ -792,35 +792,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Add a unique ID to the text area for JavaScript to target
-st.markdown(
-    f'<textarea id="main_prompt_text" style="display:none;">{main_prompt_input}</textarea>',
-    unsafe_allow_html=True
-)
-
-# Add a button with JavaScript to copy the text
-st.markdown(
-    """
-    <button onclick="copyMainPrompt()">Copy Main Prompt to Clipboard</button>
-    <script>
-    function copyMainPrompt() {
-        var text = document.getElementById('main_prompt_text').value;
-        navigator.clipboard.writeText(text).then(function() {
-            // Use Streamlit's toast to show a success message
-            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Main prompt copied to clipboard!", toastType: "success"});
-        }, function(err) {
-            // Use Streamlit's toast to show an error message
-            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Failed to copy: " + err, toastType: "error"});
-        });
-    }
-    </script>
-    """,
-    unsafe_allow_html=True
-)
+# Закомментируем кнопку копирования
+# if st.button("Copy Main Prompt to Clipboard", key="copy_main_btn"):
+#     try:
+#         pyperclip.copy(main_prompt_input)
+#         st.success("Main prompt copied to clipboard!")
+#     except pyperclip.PyperclipException:
+#         st.error("Unable to copy to clipboard. Please manually copy the prompt above. Ensure 'xclip' or 'xsel' is installed on your system if you're on Linux.")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Негативный промпт с кнопкой копирования
+# Негативный промпт с кнопкой копирования (закомментировано)
 st.subheader("Negative Prompt")
 negative_prompt_input = st.text_area("Negative Prompt", value=negative_prompt, height=150, key="negative_prompt_area")
 st.markdown(
@@ -828,33 +810,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Add a unique ID to the text area for JavaScript to target
-st.markdown(
-    f'<textarea id="negative_prompt_text" style="display:none;">{negative_prompt_input}</textarea>',
-    unsafe_allow_html=True
-)
-
-# Add a button with JavaScript to copy the text
-st.markdown(
-    """
-    <button onclick="copyNegativePrompt()">Copy Negative Prompt to Clipboard</button>
-    <script>
-    function copyNegativePrompt() {
-        var text = document.getElementById('negative_prompt_text').value;
-        navigator.clipboard.writeText(text).then(function() {
-            // Use Streamlit's toast to show a success message
-            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Negative prompt copied to clipboard!", toastType: "success"});
-        }, function(err) {
-            // Use Streamlit's toast to show an error message
-            window.parent.Streamlit.setComponentValue({type: "streamlit_toast", message: "Failed to copy: " + err, toastType: "error"});
-        });
-    }
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown("<br>", unsafe_allow_html=True)
+# Закомментируем кнопку копирования
+# if st.button("Copy Negative Prompt to Clipboard", key="copy_negative_btn"):
+#     try:
+#         pyperclip.copy(negative_prompt_input)
+#         st.success("Negative prompt copied to clipboard!")
+#     except pyperclip.PyperclipException:
+#         st.error("Unable to copy to clipboard. Please manually copy the prompt above. Ensure 'xclip' or 'xsel' is installed on your system if you're on Linux.")
 
 # Кнопка для сброса настроек
 if st.button("Reset Settings", help="Reset all settings to default"):
