@@ -541,7 +541,7 @@ st.markdown(
     """
     <div class="title-container">
         <h1 style="color: white; margin: 0;">
-            <img src="https://res.cloudinary.com/dts5q0ryk/image/upload/v1742992900/Logo_white_a3f4t1.png" alt="YourCompany Logo" width="60" height="60">
+            <img src="https://raw.githubusercontent.com/Andriy-Lysenko/Prompt_Gen/refs/heads/main/Logo_white.png?token=GHSAT0AAAAAADAFMWJDSRA4ECXKHOUFRO5QZ7D6QOQ" alt="YourCompany Logo" width="60" height="60">
             Nfinite Prompt Generator
         </h1>
     </div>
@@ -786,7 +786,7 @@ if st.session_state.negative_enabled:
 
 # Главный промпт с кнопкой копирования
 st.subheader("Generated Prompt")
-main_prompt_input = st.text_area("", value=st.session_state.main_prompt, height=200, key="main_prompt_area")
+main_prompt_input = st.text_area("Hidden Input", value=st.session_state.main_prompt, height=200, key="main_prompt_area", label_visibility="hidden")
 st.markdown(
     f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
     unsafe_allow_html=True
@@ -799,7 +799,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # Негативный промпт с кнопкой копирования
 st.subheader("Negative Prompt")
-negative_prompt_input = st.text_area("", value=negative_prompt, height=150, key="negative_prompt_area")
+negative_prompt_input = st.text_area("Hidden Input", value=negative_prompt, height=150, key="negative_prompt_area", label_visibility="hidden")
 st.markdown(
     f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
     unsafe_allow_html=True
