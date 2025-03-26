@@ -26,45 +26,57 @@ style_prompts = {
     "Vintage": "with retro furniture, antique decor, and muted colors, featuring nostalgic elements and classic patterns"
 }
 
-# Контроль над камерой
+# Контроль над камерой (Updated: Modified Front view description)
 camera_control = {
     "None": "",
-    "Close-up": "focusing on the details of the furniture",
-    "Mid-range": "capturing the furniture and its immediate surroundings",
-    "Wide-angle": "showing the entire room with the furniture as the focal point",
-    "20% angle": "featuring a slightly angled view to add depth and perspective",
-    "Full interior": "showcasing the entire room layout",
-    "A little above view": "providing a slightly elevated view to give a better sense of space and arrangement",
-    "3/4 view": "positioned at an angle, allowing the viewer to see both its front and side"
+    "20% angle": "slightly angled view to add depth and perspective",
+    "A little above view": "slightly elevated view to give a better sense of space and arrangement",
+    "3/4 view": "three-quarter position allowing the viewer to see both its front and side",
+    "Front view": "front view of facing directly towards the viewer",
+    "Side view": "side view of"
+}
+
+# Контроль над FOV
+fov_control = {
+    "None": "",
+    "Close up": "Close up",
+    "Midshot": "Midshot",
+    "Full interior": "Full interior",
+    "Wide angle": "Wide angle"
 }
 
 # Контроль над освещением
 lighting_control = {
     "None": "",
-    "Soft natural daylight": "with soft natural daylight streaming through large windows, creating a warm and inviting atmosphere",
-    "Evening mood lighting": "with evening mood lighting featuring soft, warm tones to create an inviting ambiance",
-    "Studio lighting": "with studio lighting providing balanced brightness to highlight the furniture details",
-    "Golden hour": "with golden hour lighting featuring warm, golden tones to enhance the textures and colors",
-    "Overcast lighting": "with overcast lighting providing diffused natural light for a calm and serene atmosphere"
+    "Clear daylight": "with clear daylight illuminating the room through large windows, highlighting all details",
+    "Evening mood lighting": "with evening mood lighting casting distinct, warm shadows across the scene",
+    "Studio lighting": "with studio lighting providing even, sharp illumination to every element",
+    "Golden hour": "with golden-hour light casting sharp, warm shadows and enhancing all textures",
+    "Overcast lighting": "with overcast lighting providing even, clear illumination for a detailed atmosphere"
 }
 
-# Контроль над позицией продукта
-position_control = {
+# Цветовые палитры
+color_palettes = {
     "None": "",
-    "Center": "positioned in the center of the frame, drawing immediate attention",
-    "Left side": "placed on the left side of the frame, creating a balanced composition",
-    "Right side": "placed on the right side of the frame, adding visual interest",
-    "Foreground": "in the foreground, with the rest of the room in the background",
-    "Background": "in the background, with other elements in the foreground to create depth"
+    "Pastel color tones": "Pastel color tones including light pink, baby blue, mint green, lavender, and pale yellow",
+    "Neutral Palette": "Neutral Palette including tones like beige, gray, taupe, and cream, creating a timeless and elegant look",
+    "Monochromatic Palette": "Monochromatic Palette focusing on varying shades and tones of a single color for a harmonious feel",
+    "Complementary Palette": "Complementary Palette using colors opposite each other on the color wheel like blue and orange, red and green, for dynamic contrast",
+    "Analogous Palette": "Analogous Palette combining colors next to each other on the color wheel like blue, turquoise, green, for a smooth transition",
+    "Warm Palette": "Warm Palette filled with reds, oranges, and yellows to bring coziness and energy",
+    "Cool Palette": "Cool Palette centered on blues, greens, and purples for calmness and relaxation",
+    "Earthy Palette": "Earthy Palette inspired by natural tones like terracotta, olive green, and sandy browns",
+    "Bold and Vibrant Palette": "Bold and Vibrant Palette using saturated hues like magenta, electric blue, and neon yellow for a lively atmosphere",
+    "Muted Palette": "Muted Palette with subdued tones that maintain color depth without being overpowering, such as dusty pink, sage green, slate blue"
 }
 
 # Токены для качества
-quality_tokens = "Hyperrealistic 3D rendering, ultra-detailed, 8K resolution, photorealistic, cinematic quality, sharp focus, lifelike lighting, realistic shadows, intricate details, crystal-clear image quality, bright lighting, vivid colors."
+quality_tokens = "Photorealistic scene with sharp detail throughout, high-resolution textures, vivid colors, lifelike lighting across the entire image, clear focus on all elements."
 
 # Токены для негативного промпта
 negative_tokens = "busy patterns, dark lighting, cluttered, artificial colors, cartoon style, low resolution, blurry, noisy, grainy, distorted proportions, unrealistic textures, harsh shadows, oversaturated colors, highly decorated, chaotic composition, rough surfaces, childish design, unrefined edges, gaudy colors, overly complex, heavy appearance, dirty, worn, antique, steampunk elements, depth of field, yellow walls, warm walls, nude, NSFW."
 
-# Полный словарь subject_subcategories
+# Полный словарь subject_subcategories (Category-level tokens removed)
 subject_subcategories = {
     "None": {
         "options": ["None"],
@@ -77,8 +89,7 @@ subject_subcategories = {
             "L-shaped sofa", "sectional sofa", "sleeper sofa", "chaise sofa",
             "loveseat", "recliner sofa", "modular sofa", "curved sofa",
             "tufted sofa", "mid-century sofa", "chesterfield sofa"
-        ],
-        "tokens": "featuring comfortable seating, plush cushions, modern design, elegant upholstery, and a sturdy frame"
+        ]
     },
     "Table": {
         "options": [
@@ -151,8 +162,7 @@ subject_subcategories = {
                 {"name": "Table with intricate inlays or mosaic design for a pop of detail",
                  "tokens": "intricate inlays, mosaic design, detailed craftsmanship, artistic touch, luxurious feel"}
             ]
-        },
-        "tokens": "featuring sturdy construction, smooth surface, modern design, wooden or glass top, and functional decor"
+        }
     },
     "Dining Chair": {
         "options": [
@@ -162,8 +172,7 @@ subject_subcategories = {
             "Scandinavian: Lightwood chair with fabric seat and gentle curves",
             "Industrial: Metal-framed chair with wooden or leather seat",
             "Mid-Century Modern: Chair with molded seat and tapered wooden legs"
-        ],
-        "tokens": "featuring ergonomic design, comfortable seating, stylish frame, upholstered or wooden construction, and a modern or classic look"
+        ]
     },
     "Pouf": {
         "options": [
@@ -196,8 +205,7 @@ subject_subcategories = {
                 {"name": "Weatherproof Pouf",
                  "tokens": "weatherproof material, outdoor use, durable design, vibrant colors, casual seating"}
             ]
-        },
-        "tokens": "featuring plush padding, versatile design, modern or classic style, and a decorative accent"
+        }
     },
     "Armchair": {
         "options": [
@@ -267,8 +275,7 @@ subject_subcategories = {
                 {"name": "Sling Armchair",
                  "tokens": "fabric stretched over frame, lightweight metal or wood, modern outdoor design, breathable material, casual seating"}
             ]
-        },
-        "tokens": "featuring plush upholstery, elegant design, high backrest, comfortable seating, and a modern or vintage look"
+        }
     },
     "Buffet": {
         "options": [
@@ -301,8 +308,7 @@ subject_subcategories = {
                 {"name": "Reclaimed Wood Buffet",
                  "tokens": "reclaimed wood, rustic charm, natural finish, earthy tones, handcrafted feel"}
             ]
-        },
-        "tokens": "featuring elegant storage, sturdy build, decorative accent, modern or classic design, and functional decor"
+        }
     },
     "Sideboard": {
         "options": [
@@ -335,8 +341,7 @@ subject_subcategories = {
                 {"name": "Reclaimed Wood Sideboard",
                  "tokens": "reclaimed wood, rustic charm, natural finish, earthy tones, handcrafted feel"}
             ]
-        },
-        "tokens": "featuring functional storage, sturdy build, decorative accent, modern or classic design, and elegant decor"
+        }
     },
     "Rug": {
         "options": [
@@ -363,8 +368,7 @@ subject_subcategories = {
                 {"name": "Persian Classic Rug",
                  "tokens": "classic design, intricate patterns, rich colors, plush texture, luxurious feel"}
             ]
-        },
-        "tokens": "featuring vibrant patterns, durable material, modern or classic style, and a decorative accent"
+        }
     },
     "Dining table and chairs": {
         "options": [
@@ -374,8 +378,7 @@ subject_subcategories = {
             "six-seat rectangular table",
             "Round dining table",
             "Extendable dining table"
-        ],
-        "tokens": "featuring sturdy construction, elegant design, functional dining set, modern or classic style, and comfortable seating"
+        ]
     },
     "Bed": {
         "options": [
@@ -387,8 +390,7 @@ subject_subcategories = {
             "canopy bed",
             "platform bed",
             "sleigh bed"
-        ],
-        "tokens": "featuring comfortable bedding, sturdy frame, elegant headboard, modern or classic design, and a supportive mattress"
+        ]
     },
     "Shelves": {
         "options": [
@@ -397,8 +399,7 @@ subject_subcategories = {
             "wall-mounted shelf",
             "bookshelf",
             "corner shelf"
-        ],
-        "tokens": "featuring functional storage, sleek design, modern or classic style, sturdy build, and a decorative accent"
+        ]
     },
     "Floor Lamp": {
         "options": [
@@ -425,8 +426,7 @@ subject_subcategories = {
                 {"name": "Traditional Floor Lamp",
                  "tokens": "classic design, fabric shade, wooden base, warm lighting, elegant style"}
             ]
-        },
-        "tokens": "featuring ambient lighting, sturdy base, modern or classic design, elegant style, and functional decor"
+        }
     },
     "Table Lamp": {
         "options": [
@@ -453,8 +453,7 @@ subject_subcategories = {
                 {"name": "Sleek Minimalist Table Lamp",
                  "tokens": "sleek design, minimalist style, neutral tones, metal frame, modern lighting"}
             ]
-        },
-        "tokens": "featuring ambient lighting, sleek design, modern or classic style, elegant look, and functional decor"
+        }
     }
 }
 
@@ -542,7 +541,7 @@ st.markdown(
     """
     <div class="title-container">
         <h1 style="color: white; margin: 0;">
-            <img src="https://via.placeholder.com/30" alt="Nfinite Logo" width="30" height="30">
+            <img src="https://raw.githubusercontent.com/Andriy-Lysenko/Prompt_Gen/refs/heads/main/Logo_white.png?token=GHSAT0AAAAAADAFMWJDSRA4ECXKHOUFRO5QZ7D6QOQ" alt="YourCompany Logo" width="60" height="60">
             Nfinite Prompt Generator
         </h1>
     </div>
@@ -557,22 +556,22 @@ if "camera" not in st.session_state:
     st.session_state.camera = "None"
 if "lighting" not in st.session_state:
     st.session_state.lighting = "None"
-if "position" not in st.session_state:
-    st.session_state.position = "Center"
+if "fov" not in st.session_state:
+    st.session_state.fov = "None"
 if "furniture_type" not in st.session_state:
     st.session_state.furniture_type = "None"
 if "furniture_subtype" not in st.session_state:
     st.session_state.furniture_subtype = "None"
 if "material" not in st.session_state:
     st.session_state.material = "None"
-if "color" not in st.session_state:
-    st.session_state.color = "None"
+if "color_palette" not in st.session_state:
+    st.session_state.color_palette = "None"
 if "room_type" not in st.session_state:
     st.session_state.room_type = "None"
 if "model_type" not in st.session_state:
-    st.session_state.model_type = "Fooocus"  # По умолчанию Fooocus
+    st.session_state.model_type = "Fooocus"
 if "main_prompt" not in st.session_state:
-    st.session_state.main_prompt = ""  # Храним промпт в session_state
+    st.session_state.main_prompt = ""
 if "quality_enabled" not in st.session_state:
     st.session_state.quality_enabled = False
 if "negative_enabled" not in st.session_state:
@@ -607,12 +606,12 @@ with st.sidebar:
         key="material",
         help="Choose the material of the furniture. For example, 'Leather' for a sofa or 'Wood' for a table."
     )
-    color = st.selectbox(
-        "Select Color",
-        ["None", "Beige", "Black", "White", "Gray", "Brown", "Blue", "Green", "Red", "Yellow", "Purple", "Pink", "Navy", "Teal"],
+    color_palette = st.selectbox(
+        "Select Color Palette",
+        sorted(color_palettes.keys()),
         index=0,
-        key="color",
-        help="Choose the color of the furniture. For example, 'Beige' for a neutral look or 'Blue' for a pop of color."
+        key="color_palette",
+        help="Choose the color palette for the furniture."
     )
 
     st.header("Room Settings")
@@ -649,29 +648,26 @@ with st.sidebar:
         help="Choose the lighting conditions for the scene."
     )
 
-    st.header("Product Position")
-    position = st.selectbox(
-        "Select Product Position",
-        sorted(position_control.keys()),
-        index=1,  # Устанавливаем "Center" по умолчанию
-        key="position",
-        help="Choose the position of the furniture in the frame."
+    st.header("FOV")
+    fov = st.selectbox(
+        "Select Field of View",
+        sorted(fov_control.keys()),
+        index=0,
+        key="fov",
+        help="Choose the field of view for the shot."
     )
 
     st.header("Prompt Settings")
     max_length = st.slider("Max Prompt Length", min_value=100, max_value=1000, value=400, step=50, help="Set the maximum character limit for the optimized prompt.")
 
     st.header("Quality and Negative Prompts")
-    # Кнопка для Quality Prompt с динамическим классом
     quality_button_class = "quality-enabled" if st.session_state.quality_enabled else ""
     if st.button("Enable Quality Prompt", key="quality_btn", help="Add high-quality rendering tokens to the prompt"):
         st.session_state.quality_enabled = not st.session_state.quality_enabled
         st.rerun()
 
-    # Применяем класс подсветки после рендеринга кнопки
     st.markdown(f'<script>document.querySelector("button[data-testid=\'stButton\'][key=\'quality_btn\']").classList.add("{quality_button_class}");</script>', unsafe_allow_html=True)
 
-    # Кнопка для Negative Prompt с динамическим классом
     negative_button_class = "negative-enabled" if st.session_state.negative_enabled else ""
     if st.button("Enable Negative Prompt", key="negative_btn", help="Add negative rendering tokens to exclude unwanted elements"):
         st.session_state.negative_enabled = not st.session_state.negative_enabled
@@ -681,26 +677,97 @@ with st.sidebar:
 # Основная область
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Функция для генерации промпта
+# Функция для генерации описания мебели
 def get_furniture_description():
-    if st.session_state.furniture_type == "Table" and (st.session_state.furniture_subtype == "Bedside Table" or st.session_state.furniture_subtype == "Side Table"):
-        return f"A stylish {st.session_state.furniture_subtype} as the main focus, made of {st.session_state.material} in {st.session_state.color}, featuring sturdy construction, smooth surface, modern design, and functional decor."
-    else:
-        return f"A {st.session_state.furniture_subtype} made of {st.session_state.material} in {st.session_state.color}, featuring {subject_subcategories[st.session_state.furniture_type]['tokens']}."
+    furniture_type = st.session_state.furniture_type
+    subtype = st.session_state.furniture_subtype
+    material = st.session_state.material
+    color_palette = st.session_state.color_palette
 
-def get_room_description():
-    if st.session_state.room_type != "None" and st.session_state.style != "None":
-        return f" in a {st.session_state.style} {st.session_state.room_type}"
-    return ""
+    # If furniture type or subtype is "None", return an empty string
+    if furniture_type == "None" or subtype == "None":
+        return ""
 
-def generate_prompt(model_type="Fooocus"):
-    furniture_desc = get_furniture_description()
-    room_desc = get_room_description()
-    lighting_desc = f" with {lighting_control[st.session_state.lighting]}" if st.session_state.lighting != "None" else ""
-    camera_desc = f" Captured in a {camera_control[st.session_state.camera]} view." if st.session_state.camera != "None" else ""
-    position_desc = f" The {st.session_state.furniture_subtype} is {position_control[st.session_state.position]}." if st.session_state.position != "None" else ""
+    # Base description starts with the subtype
+    desc = f"A {subtype}"
+
+    # Add material if not "None"
+    if material != "None":
+        desc += f" made of {material}"
     
-    prompt = f"{furniture_desc}{room_desc}{lighting_desc}{camera_desc}{position_desc}"
+    # Add color palette if not "None"
+    if color_palette != "None":
+        desc += f" in a {color_palette} palette"
+
+    # Add subcategory tokens if available
+    if 'subcategories' in subject_subcategories[furniture_type] and subtype in subject_subcategories[furniture_type]['subcategories']:
+        for sub in subject_subcategories[furniture_type]['subcategories'][subtype]:
+            if sub['name'] == subtype:
+                desc += f", {sub['tokens']}"
+                break
+
+    # Special case for Bedside/Side Table
+    if furniture_type == "Table" and (subtype == "Bedside Table" or subtype == "Side Table"):
+        desc = f"A stylish {subtype}"
+        if material != "None":
+            desc += f" made of {material}"
+        if color_palette != "None":
+            desc += f" in a {color_palette} palette"
+        desc += ", featuring sturdy construction, smooth surface, modern design, and functional decor"
+
+    return desc
+
+# Функция для генерации промпта
+def generate_prompt(model_type="Fooocus"):
+    # Furniture description (might be empty if all are "None")
+    furniture_desc = get_furniture_description()
+
+    # Room and background description with style tokens
+    if st.session_state.room_type != "None" and st.session_state.style != "None":
+        room_desc = f" in a {st.session_state.style} {st.session_state.room_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity {style_prompts[st.session_state.style]}"
+    elif st.session_state.room_type != "None":
+        room_desc = f" in a {st.session_state.room_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
+    else:
+        room_desc = " in a detailed indoor setting with visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
+
+    # Lighting description (skip if "None")
+    lighting_desc = f" with {lighting_control[st.session_state.lighting]}" if st.session_state.lighting != "None" else " with clear daylight illuminating the scene, highlighting all details"
+
+    # FOV and Camera Control logic
+    fov = st.session_state.fov
+    camera = st.session_state.camera
+    view_desc = ""
+
+    if fov != "None" and camera != "None":
+        if camera == "3/4 view":
+            # For 3/4 view: "FOV + Camera Control"
+            view_desc = f"{fov_control[fov].lower()} view from a {camera_control[camera]}"
+        else:
+            # For other camera angles: "Camera Control + FOV"
+            view_desc = f"{fov_control[fov]} {camera_control[camera]}"
+    elif fov != "None":
+        view_desc = f"{fov_control[fov]}"
+    elif camera != "None":
+        view_desc = f"from a {camera_control[camera]}"
+
+    # Combine view description with furniture description
+    if view_desc and furniture_desc:
+        prompt_start = f"{view_desc} of {furniture_desc.lower()}"
+    elif furniture_desc:
+        prompt_start = furniture_desc
+    else:
+        prompt_start = ""
+
+    # Default centering phrase (always included if furniture is specified)
+    centering_desc = f" The {st.session_state.furniture_subtype} is positioned in the center of a composition." if furniture_desc else ""
+
+    # Combine the prompt
+    if prompt_start:
+        prompt = f"{prompt_start}{room_desc}{lighting_desc}{centering_desc}"
+    else:
+        prompt = f"{room_desc[1:]}{lighting_desc}"  # Remove leading " in" for grammatical correctness
+
+    # Add quality tokens if enabled
     if st.session_state.quality_enabled:
         prompt += " " + quality_tokens
     return prompt
@@ -716,23 +783,6 @@ st.session_state.main_prompt = generate_prompt(st.session_state.model_type)
 negative_prompt = ""
 if st.session_state.negative_enabled:
     negative_prompt = negative_tokens
-
-# Кнопки Optimize, Flux и Обновить
-col1, col2, col3 = st.columns([1, 1, 1])
-with col1:
-    if st.button("Optimize", key="optimize_btn", help=f"Optimize the prompt to fit within {max_length} characters"):
-        main_prompt = optimize_prompt(st.session_state.main_prompt, max_length)
-        st.session_state.main_prompt = main_prompt
-        st.rerun()
-with col2:
-    if st.button("Flux", key="flux_btn", help="Switch to Flux model prompt"):
-        st.session_state.model_type = "Flux"
-        st.session_state.main_prompt = generate_prompt("Flux")
-        st.rerun()
-with col3:
-    if st.button("Обновить", key="refresh_btn", help="Regenerate the current prompt"):
-        st.session_state.main_prompt = generate_prompt(st.session_state.model_type)
-        st.rerun()
 
 # Главный промпт с кнопкой копирования
 st.subheader("Generated Prompt")
@@ -772,12 +822,12 @@ if st.button("Save Configuration", help="Save the current configuration"):
         "furniture_type": st.session_state.furniture_type,
         "furniture_subtype": st.session_state.furniture_subtype,
         "material": st.session_state.material,
-        "color": st.session_state.color,
+        "color_palette": st.session_state.color_palette,
         "room_type": st.session_state.room_type,
         "style": st.session_state.style,
         "camera": st.session_state.camera,
         "lighting": st.session_state.lighting,
-        "position": st.session_state.position,
+        "fov": st.session_state.fov,
         "quality_enabled": st.session_state.quality_enabled,
         "negative_enabled": st.session_state.negative_enabled,
         "model_type": st.session_state.model_type,
@@ -798,12 +848,12 @@ if st.session_state.saved_configs:
         st.session_state.furniture_type = config["furniture_type"]
         st.session_state.furniture_subtype = config["furniture_subtype"]
         st.session_state.material = config["material"]
-        st.session_state.color = config["color"]
+        st.session_state.color_palette = config["color_palette"]
         st.session_state.room_type = config["room_type"]
         st.session_state.style = config["style"]
         st.session_state.camera = config["camera"]
         st.session_state.lighting = config["lighting"]
-        st.session_state.position = config["position"]
+        st.session_state.fov = config["fov"]
         st.session_state.quality_enabled = config["quality_enabled"]
         st.session_state.negative_enabled = config["negative_enabled"]
         st.session_state.model_type = config["model_type"]
@@ -819,23 +869,6 @@ if st.session_state.saved_configs:
 # Закрытие обёртки основной области
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Функция оптимизации промпта
-def optimize_prompt(prompt, max_length=400):
-    if len(prompt) <= max_length:
-        return prompt
-    words = prompt.split()
-    optimized = []
-    word_count = 0
-    for word in words:
-        if word_count + len(word) + 1 <= max_length:
-            optimized.append(word)
-            word_count += len(word) + 1
-        else:
-            break
-    optimized_prompt = " ".join(optimized) + "... (optimized)"
-    if len(optimized_prompt) > max_length:
-        st.warning(f"Prompt still exceeds {max_length} characters after optimization. Consider reducing the input.")
-    return optimized_prompt
 # Экспорт промптов в JSON или TXT
 if st.button("Export Prompts to JSON", key="export_json_btn"):
     config = {
