@@ -541,7 +541,7 @@ st.markdown(
     """
     <div class="title-container">
         <h1 style="color: white; margin: 0;">
-            <img src="https://raw.githubusercontent.com/Andriy-Lysenko/Prompt_Gen/refs/heads/main/Logo_white.png?token=GHSAT0AAAAAADAFMWJDSRA4ECXKHOUFRO5QZ7D6QOQ" alt="YourCompany Logo" width="60" height="60">
+            <img src="https://raw.githubusercontent.com/Andriy-Lysenko/Prompt_Gen/refs/heads/main/Logo_white.png?token=GHSAT0AAAAAADAFMWJDSRA4ECXKHOUFRO5QZ7D6QOQ" width="60" height="60">
             Nfinite Prompt Generator
         </h1>
     </div>
