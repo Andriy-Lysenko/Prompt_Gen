@@ -52,7 +52,7 @@ lighting_control = {
     "Evening mood lighting": "with evening mood lighting casting distinct, warm shadows across the scene",
     "Studio lighting": "with studio lighting providing even, sharp illumination to every element",
     "Golden hour": "with golden-hour light casting sharp, warm shadows and enhancing all textures",
-    "Overcast lighting": "with overcast lighting providing even, clear illumination for a detailed atmosphere"
+    "Diffuse Light": "with diffuse lighting providing even, clear illumination for a detailed atmosphere"
 }
 
 # Цветовые палитры
