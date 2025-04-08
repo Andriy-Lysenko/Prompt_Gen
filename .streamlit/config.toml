@@ -4,4 +4,4 @@ primaryColor="#f63366" # Можете настроить основные цве
 backgroundColor="#0E1117" # Стандартный темный фон Streamlit
 secondaryBackgroundColor="#262730"
 textColor="#FAFAFA"
-font="poppins"
+font="sans serif"
