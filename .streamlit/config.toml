@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#f63366" # Можете настроить основные цвета, если хотите
+backgroundColor="#0E1117" # Стандартный темный фон Streamlit
+secondaryBackgroundColor="#262730"
+textColor="#FAFAFA"
+font="sans serif"
