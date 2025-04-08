@@ -1,5 +1,5 @@
 import streamlit as st
-import pyperclip
+# import pyperclip # <<< УБРАНО
 import json
 
 # Устанавливаем конфигурацию страницы (лучше делать в самом начале)
@@ -130,7 +130,8 @@ furniture_options = {
         "Platform Bed", "Canopy Bed", "Bunk Bed", "Daybed", "Headboard",
     ],
     "Lighting": [
-        "None", "Table Lamp", "Floor Lamp", "Pendant Light", "Chandelier", "Wall Sconce"
+        "None", "Table Lamp", "Floor Lamp", "Pendant Light", "Chandelier", "Wall Sconce",
+        "Ceiling fan"
     ],
     "Rugs": [
         "None", "Large area outdoor rug", "Runner rug", "Round rug", "Horizontal placed rug"
@@ -337,6 +338,7 @@ def generate_prompt():
              else:
                  article = "an" if furniture_desc.lower().startswith(("a", "e", "i", "o", "u")) else "a"
                  prompt_start = f"{view_desc} of {article} {furniture_desc.lower()}"
+
         elif furniture_desc:
              prompt_start = furniture_desc
         elif view_desc:
@@ -372,13 +374,13 @@ def generate_negative_prompt():
 
 # ----- UI Definition -----
 with st.sidebar:
-    st.title("Settings") # Оставляем этот заголовок для сайдбара
+    st.title("Settings")
 
     st.header("Generation Logic")
     prompt_logic_options = ["SDXL", "FLUX"]
     current_logic = st.session_state.prompt_logic
     if current_logic not in prompt_logic_options:
-        st.session_state.prompt_logic = "FLUX" # Сброс на дефолт, если значение некорректно
+        st.session_state.prompt_logic = "FLUX"
         current_logic = "FLUX"
     st.selectbox(
         "Select Prompt Logic", prompt_logic_options,
@@ -477,7 +479,6 @@ with st.sidebar:
 
 # ----- Main App Area -----
 
-# Вставляем ваш код заголовка с логотипом:
 st.markdown(
     """
     <div class="title-container">
@@ -495,7 +496,6 @@ st.markdown(
              background-color: transparent; /* Попробовать убрать фон заголовка Streamlit по умолчанию */
         }
        /* Стилизация для темной темы */
-       /* Используем CSS переменные Streamlit для совместимости */
        body:not([data-theme="light"]) .title-container h1 {
            color: var(--text-color, white) !important;
        }
@@ -516,18 +516,22 @@ st.subheader("Main Prompt")
 main_prompt_input = st.text_area("Edit or use the generated prompt:", value=main_prompt_generated, height=150, key="main_prompt_area")
 st.session_state.main_prompt = main_prompt_input
 
-if st.button("Copy Main Prompt"):
-    pyperclip.copy(main_prompt_input)
-    st.success("Main prompt copied to clipboard!")
+# --- Убраны кнопки Copy ---
+# if st.button("Copy Main Prompt"):
+#     # pyperclip.copy(main_prompt_input) # Убрано из-за ошибки в Streamlit Cloud
+#     # st.success("Main prompt copied to clipboard!") # Убрано
+#     st.info("Please select and copy the text manually.") # Заменено на инструкцию
 
 if st.session_state.negative_enabled:
     st.subheader("Negative Prompt")
     negative_prompt_input = st.text_area("Edit or use the generated negative prompt:", value=negative_prompt_generated, height=100, key="negative_prompt_area")
     st.session_state.negative_prompt = negative_prompt_input
 
-    if st.button("Copy Negative Prompt"):
-        pyperclip.copy(negative_prompt_input)
-        st.success("Negative prompt copied to clipboard!")
+    # --- Убраны кнопки Copy ---
+    # if st.button("Copy Negative Prompt"):
+    #     # pyperclip.copy(negative_prompt_input) # Убрано
+    #     # st.success("Negative prompt copied to clipboard!") # Убрано
+    #     st.info("Please select and copy the text manually.") # Заменено на инструкцию
 else:
      negative_prompt_input = ""
      st.session_state.negative_prompt = ""
