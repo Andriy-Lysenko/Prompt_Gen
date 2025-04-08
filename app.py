@@ -285,7 +285,7 @@ def generate_prompt():
         prompt = (
             f"{fov_text} of a {subject_desc_start} {placement}{surface_desc}, {atmosphere_desc}, "
             f"captured with a Nikon Z7 II camera and a 24mm f/1.2L lens. "
-            f"Set the aperture to f/22 for a wide depth of field, ensuring {details_desc} is in sharp focus. "
+            f"Set the aperture to f/22, ensuring {details_desc} is in sharp focus. "
             f"The composition should {camera_angle_desc}, with the {subject}. "
             f"Adjust the shutter speed to 1/160 to maintain crisp clarity {lighting_condition_desc}. "
             f"Set the white balance to 6500k to ensure a neutral white color pallete. "
