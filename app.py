@@ -2,6 +2,52 @@ import streamlit as st
 import pyperclip
 import json
 
+# Устанавливаем конфигурацию страницы (лучше делать в самом начале)
+st.set_page_config(layout="wide", initial_sidebar_state="expanded", page_title="Nfinite Prompt Generator")
+
+# --- Новые опции для поверхностей ---
+surface_options = {
+    "None": "on an appropriate surface", # Дефолт/fallback
+    "Light Oak Parquet": "on a light oak parquet floor",
+    "Dark Walnut Parquet (Herringbone)": "on a dark walnut herringbone parquet floor",
+    "Aged Pine Floorboards": "on aged pine floorboards",
+    "Grey Laminate": "on a grey laminate floor",
+    "Natural Wood Laminate": "on a natural wood laminate floor",
+    "Large Beige Area Rug": "on a large beige area rug covering the floor",
+    "Colorful Geometric Rug": "on a colorful geometric area rug",
+    "Persian Style Rug": "on an intricate Persian style rug",
+    "Neutral Carpet over Wooden Floor": "on a soft, neutral-toned carpet covering the wooden floor",
+    "White Marble Tile": "on white marble floor tiles",
+    "Black Slate Tile": "on black slate floor tiles",
+    "Terracotta Tile": "on terracotta floor tiles",
+    "Polished Concrete": "on a polished concrete floor",
+    "Matte Concrete": "on a matte concrete floor"
+}
+
+# --- Новые опции для окружающих элементов ---
+surrounding_element_options = [
+    "Picture frames on the wall",
+    "Framed floral artworks on wall",
+    "Large potted plant on the left",
+    "Large potted plant on the right",
+    "Stack of books on the floor",
+    "Magazines on a nearby table",
+    "Coffee table with vase of flowers (foreground)",
+    "Sculpture on a pedestal",
+    "Empty coffee cups on a surface",
+    "Laptop on a desk nearby",
+    "Decorative pillows on seating",
+    "Throw blanket draped over furniture",
+    "Visible window with sheer curtains",
+    "Visible window with heavy drapes",
+    "Beige curtains framing the scene",
+    "Modern floor lamp",
+    "Fireplace (inactive)",
+    "Small decorative objects on shelves",
+    "Wall mirror with ornate frame",
+    "Floating wall shelves with books"
+]
+
 # Промпты для каждого стиля
 style_prompts = {
     "None": "",
@@ -15,887 +61,577 @@ style_prompts = {
     "Craftsman": "with handcrafted furniture, natural wood, and earthy tones, featuring built-in elements and an inviting atmosphere",
     "Farmhouse": "with shabby chic decor, reclaimed wood, and vintage elements, featuring neutral colors, textiles, and a farmhouse sink",
     "French Inspired": "with elegant decor, ornate details, and pastel colors, featuring vintage furniture, chandeliers, and a romantic atmosphere",
-    "Haussmannian": "with elegant architecture, high ceilings, and ornate moldings, featuring large windows, classic furniture, and luxurious decor",
-    "Japandi": "combining Scandinavian simplicity with Japanese minimalism, featuring natural materials, muted colors, wooden textures, and a zen atmosphere",
-    "Mid-century Modern": "with retro vibes, organic shapes, and bold colors, featuring wooden furniture, vintage decor, and clean lines",
-    "Minimalist": "with clean lines, neutral colors, and functional furniture, featuring an open, simple, and clutter-free space",
-    "Modern": "with clean lines, minimalistic design, and a neutral color palette, featuring sleek furniture, geometric shapes, and metallic accents",
-    "Modern Traditional": "blending classic furniture with modern accents, featuring symmetry, rich colors, and elegant decor for a timeless look",
-    "Rustic": "with natural materials, rough textures, and earthy tones, featuring wooden beams, stone elements, and an inviting atmosphere",
-    "Traditional": "with ornate details, rich fabrics, and dark wood furniture, featuring classic patterns, antique decor, and warm colors",
-    "Vintage": "with retro furniture, antique decor, and muted colors, featuring nostalgic elements and classic patterns"
+    "Industrial": "with exposed brick, metal accents, and raw materials, featuring open layouts, high ceilings, and vintage furniture",
+    "Midcentury Modern": "with clean lines, organic shapes, and minimal ornamentation, featuring iconic furniture and a retro vibe",
+    "Minimalist": "with simplicity, clean lines, and neutral colors, featuring clutter-free spaces and functional furniture",
+    "Modern": "with sleek lines, neutral colors, and minimal decor, featuring open spaces, natural light, and metal accents",
+    "Rustic": "with natural materials, rough textures, and earthy tones, featuring wooden beams, stone fireplaces, and cozy textiles",
+    "Scandinavian": "with simplicity, functionality, and minimalism, featuring light colors, natural wood, and cozy textiles",
+    "Southwestern": "with earthy colors, tribal patterns, and natural materials, featuring terracotta, cacti, and rustic furniture",
+    "Spanish": "with warm colors, wrought iron, and textured walls, featuring arched doorways, tiled floors, and rustic furniture",
+    "Traditional": "with classic furniture, rich colors, and detailed ornamentation, featuring symmetry, elegant fabrics, and dark wood",
+    "Transitional": "with a mix of traditional and modern elements, featuring neutral colors, comfortable furniture, and clean lines",
+    "Tropical": "with vibrant colors, exotic plants, and natural materials, featuring rattan furniture, bold patterns, and a relaxed vibe",
+    "Vintage": "with antique furniture, retro patterns, and nostalgic decor, featuring classic pieces and a charming atmosphere"
 }
 
-# Контроль над камерой (Updated: Modified Front view description)
-camera_control = {
-    "None": "",
-    "20% angle": "slightly angled view to add depth and perspective",
-    "A little above view": "slightly elevated view to give a better sense of space and arrangement",
-    "3/4 view": "three-quarter position allowing the viewer to see both its front and side",
-    "Front view": "front view of facing directly towards the viewer",
-    "Side view": "side view of"
-}
-
-# Контроль над FOV
-fov_control = {
-    "None": "",
-    "Close up": "Close up",
-    "Midshot": "Midshot",
-    "Full interior": "Full interior",
-    "Wide angle": "Wide angle"
-}
-
-# Контроль над освещением
+# Описание контроля освещения
 lighting_control = {
     "None": "",
-    "Clear daylight": "with clear daylight illuminating the room through large windows, highlighting all details",
-    "Evening mood lighting": "with evening mood lighting casting distinct, warm shadows across the scene",
-    "Studio lighting": "with studio lighting providing even, sharp illumination to every element",
-    "Golden hour": "with golden-hour light casting sharp, warm shadows and enhancing all textures",
-    "Diffuse Light": "with diffuse lighting providing even, clear illumination for a detailed atmosphere"
+    "Natural Light": "with abundant natural light flooding the space, clear daylight illuminating the scene, highlighting all details",
+    "Soft Ambient Light": "with soft ambient light creating a cozy atmosphere",
+    "Bright Studio Light": "with bright studio lighting for a clear view",
+    "Dramatic Cinematic Light": "with dramatic cinematic lighting, casting deep shadows",
+    "Warm Evening Light": "with warm evening light casting a golden glow",
+    "Overcast Daylight": "with diffused overcast daylight, providing even illumination",
+    "Golden Hour Light": "during the golden hour, with warm, soft, and long shadows",
+    "Candlelight": "lit by flickering candlelight, creating an intimate and warm ambiance"
 }
 
-# Цветовые палитры
-color_palettes = {
+# Описание контроля FOV
+fov_control = {
     "None": "",
-    "Pastel color tones": "Pastel color tones including light pink, baby blue, mint green, lavender, and pale yellow",
-    "Neutral Palette": "Neutral Palette including tones like beige, gray, taupe, and cream, creating a timeless and elegant look",
-    "Monochromatic Palette": "Monochromatic Palette focusing on varying shades and tones of a single color for a harmonious feel",
-    "Complementary Palette": "Complementary Palette using colors opposite each other on the color wheel like blue and orange, red and green, for dynamic contrast",
-    "Analogous Palette": "Analogous Palette combining colors next to each other on the color wheel like blue, turquoise, green, for a smooth transition",
-    "Warm Palette": "Warm Palette filled with reds, oranges, and yellows to bring coziness and energy",
-    "Cool Palette": "Cool Palette centered on blues, greens, and purples for calmness and relaxation",
-    "Earthy Palette": "Earthy Palette inspired by natural tones like terracotta, olive green, and sandy browns",
-    "Bold and Vibrant Palette": "Bold and Vibrant Palette using saturated hues like magenta, electric blue, and neon yellow for a lively atmosphere",
-    "Muted Palette": "Muted Palette with subdued tones that maintain color depth without being overpowering, such as dusty pink, sage green, slate blue"
+    "Close up": "Close up shot",
+    "Zoomed-in partially visible": "Zoomed-in partially visible shot",
+    "Midshot": "Midshot",
+    "Full interior": "Full interior shot",
+    "Wide angle": "Wide angle shot"
 }
 
-# Токены для качества
-quality_tokens = "Photorealistic scene with sharp detail throughout, high-resolution textures, vivid colors, lifelike lighting across the entire image, clear focus on all elements."
-
-# Токены для негативного промпта
-negative_tokens = "busy patterns, dark lighting, cluttered, artificial colors, cartoon style, low resolution, blurry, noisy, grainy, distorted proportions, unrealistic textures, harsh shadows, oversaturated colors, highly decorated, chaotic composition, rough surfaces, childish design, unrefined edges, gaudy colors, overly complex, heavy appearance, dirty, worn, antique, steampunk elements, depth of field, yellow walls, warm walls, nude, NSFW."
-
-# Полный словарь subject_subcategories (Category-level tokens removed)
-subject_subcategories = {
-    "None": {
-        "options": ["None"],
-        "tokens": ""
-    },
-    "Sofa": {
-        "options": [
-            "None",
-            "two-seated sofa", "three-seated sofa", "four-seated sofa", "corner sofa",
-            "L-shaped sofa", "sectional sofa", "sleeper sofa", "chaise sofa",
-            "loveseat", "recliner sofa", "modular sofa", "curved sofa",
-            "tufted sofa", "mid-century sofa", "chesterfield sofa"
-        ]
-    },
-    "Table": {
-        "options": [
-            "None",
-            "Coffee Table", "Dining Table", "Side Table", "Console Table", "Bedside Table",
-            "Desk Table", "Outdoor Table", "Accent Table"
-        ],
-        "subcategories": {
-            "Coffee Table": [
-                {"name": "Round or oval wooden table with a minimalist design",
-                 "tokens": "round or oval shape, wooden finish, minimalist design, sleek legs, neutral tones"},
-                {"name": "Glass-topped table with metal or wooden base",
-                 "tokens": "glass top, metal or wooden base, modern aesthetic, reflective surface, sturdy frame"},
-                {"name": "Nesting coffee table for a modular and modern feel",
-                 "tokens": "nesting design, modular layout, modern style, wooden or metal, compact storage"}
-            ],
-            "Dining Table": [
-                {"name": "Farmhouse-style table with a rustic wood finish",
-                 "tokens": "rustic wood, farmhouse style, sturdy legs, distressed finish, warm tones"},
-                {"name": "Rectangular table with sleek glass or marble top",
-                 "tokens": "rectangular shape, glass or marble top, sleek design, modern elegance, polished surface"},
-                {"name": "Extendable dining table for versatility and functionality",
-                 "tokens": "extendable design, versatile layout, wooden or glass, functional decor, modern or classic"}
-            ],
-            "Side Table": [
-                {"name": "Small, modern table with geometric frame",
-                 "tokens": "small size, geometric frame, modern design, metal or wood, compact style"},
-                {"name": "Ceramic pedestal table for an artistic statement",
-                 "tokens": "ceramic top, pedestal base, artistic design, unique shape, bold colors"},
-                {"name": "Natural wood stump table for a touch of organic design",
-                 "tokens": "natural wood, organic shape, rustic feel, unique texture, earthy tones"}
-            ],
-            "Console Table": [
-                {"name": "Slim, metal-framed table for hallways or entryways",
-                 "tokens": "slim design, metal frame, hallway decor, modern style, functional top"},
-                {"name": "Mirrored console table for a glamorous vibe",
-                 "tokens": "mirrored surface, glamorous style, elegant frame, reflective finish, luxurious feel"},
-                {"name": "Multi-tiered design for added storage and display",
-                 "tokens": "multi-tiered, storage design, modern or classic, display space, wooden or metal"}
-            ],
-            "Bedside Table": [
-                {"name": "Classic nightstand with a drawer and open shelf",
-                 "tokens": "classic design, drawer and shelf, wooden finish, bedside use, traditional style"},
-                {"name": "Floating wall-mounted table for a space-saving option",
-                 "tokens": "floating design, wall-mounted, space-saving, modern style, minimalist look"},
-                {"name": "Sculptural bedside table with unique materials like concrete or stone",
-                 "tokens": "sculptural shape, concrete or stone, unique materials, artistic design, modern vibe"}
-            ],
-            "Desk Table": [
-                {"name": "Minimalist writing desk with clean lines",
-                 "tokens": "minimalist design, clean lines, wooden or metal, functional workspace, modern style"},
-                {"name": "Standing desk with adjustable height for modern workspaces",
-                 "tokens": "standing design, adjustable height, ergonomic, modern office, sleek frame"},
-                {"name": "Vintage wooden desk with intricate carvings",
-                 "tokens": "vintage style, wooden finish, intricate carvings, classic design, detailed craftsmanship"}
-            ],
-            "Outdoor Table": [
-                {"name": "Wicker or rattan table for patio settings",
-                 "tokens": "wicker or rattan, patio decor, outdoor use, natural texture, weather-resistant"},
-                {"name": "Folding metal bistro table for compact spaces",
-                 "tokens": "folding design, metal frame, bistro style, compact size, outdoor use"},
-                {"name": "Teak or weatherproof wood design for durability",
-                 "tokens": "teak wood, weatherproof, durable design, outdoor setting, natural finish"}
-            ],
-            "Accent Table": [
-                {"name": "Round accent table with unique finishes like metallics or ceramics",
-                 "tokens": "round shape, metallic or ceramic finish, unique decor, modern style, bold accents"},
-                {"name": "C-shaped or nesting accent table for versatile use",
-                 "tokens": "C-shaped or nesting, versatile design, compact size, modern or classic, functional decor"},
-                {"name": "Table with intricate inlays or mosaic design for a pop of detail",
-                 "tokens": "intricate inlays, mosaic design, detailed craftsmanship, artistic touch, luxurious feel"}
-            ]
-        }
-    },
-    "Dining Chair": {
-        "options": [
-            "None",
-            "Traditional: Wooden chair with slatted or cross-back design",
-            "Modern Minimalist: Upholstered dining chair with clean, straight lines",
-            "Scandinavian: Lightwood chair with fabric seat and gentle curves",
-            "Industrial: Metal-framed chair with wooden or leather seat",
-            "Mid-Century Modern: Chair with molded seat and tapered wooden legs"
-        ]
-    },
-    "Pouf": {
-        "options": [
-            "None",
-            "Classic Pouf",
-            "Modern Pouf",
-            "Bohemian Pouf",
-            "Outdoor Pouf"
-        ],
-        "subcategories": {
-            "Classic Pouf": [
-                {"name": "Tufted Leather Pouf",
-                 "tokens": "tufted leather, classic design, luxurious feel, plush padding, elegant style"},
-                {"name": "Velvet Pouf",
-                 "tokens": "velvet fabric, soft texture, classic look, plush comfort, rich colors"}
-            ],
-            "Modern Pouf": [
-                {"name": "Minimalist Pouf",
-                 "tokens": "clean lines, neutral tones, modern design, sleek shape, functional decor"},
-                {"name": "Geometric Pouf",
-                 "tokens": "geometric shapes, bold patterns, modern aesthetic, plush padding, contemporary style"}
-            ],
-            "Bohemian Pouf": [
-                {"name": "Woven Pouf",
-                 "tokens": "woven texture, bohemian style, natural materials, vibrant colors, eclectic design"},
-                {"name": "Patterned Pouf",
-                 "tokens": "patterned fabric, bohemian vibe, layered textiles, artistic feel"}
-            ],
-            "Outdoor Pouf": [
-                {"name": "Weatherproof Pouf",
-                 "tokens": "weatherproof material, outdoor use, durable design, vibrant colors, casual seating"}
-            ]
-        }
-    },
-    "Armchair": {
-        "options": [
-            "None",
-            "Classic Armchair",
-            "Modern Armchair",
-            "Contemporary Armchair",
-            "Casual and Relaxing Armchair",
-            "Industrial and Rustic Armchair",
-            "Eclectic and Bold Armchair",
-            "Outdoor Armchair"
-        ],
-        "subcategories": {
-            "Classic Armchair": [
-                {"name": "Traditional Upholstered Armchair",
-                 "tokens": "timeless designs, rolled arms, tufted backs, elegant upholstery, classic style"},
-                {"name": "Wingback Chair",
-                 "tokens": "high-back chair, elegant flared sides, formal look, plush cushions, sophisticated design"},
-                {"name": "Chesterfield Armchair",
-                 "tokens": "tufted leather, luxurious appeal, deep buttoning, classic elegance, rich textures"}
-            ],
-            "Modern Armchair": [
-                {"name": "Minimalist Design",
-                 "tokens": "clean lines, neutral tones, metal or wooden frames, sleek design, modern aesthetic"},
-                {"name": "Scandinavian Armchair",
-                 "tokens": "sleek wooden arms and legs, soft fabric cushions, light colors, minimalist style"},
-                {"name": "Mid-Century Modern Armchair",
-                 "tokens": "angular arms, tapered wooden legs, retro vibes, bold colors, vintage charm"}
-            ],
-            "Contemporary Armchair": [
-                {"name": "Barrel Chair",
-                 "tokens": "rounded backrests, wrapping around the seat, modern design, plush upholstery"},
-                {"name": "Slipper Armchair",
-                 "tokens": "low armless chair, extended seating, contemporary touch, sleek silhouette, minimalist look"},
-                {"name": "Cube Armchair",
-                 "tokens": "square design, plush cushions, modern interiors, geometric shape, bold style"}
-            ],
-            "Casual and Relaxing Armchair": [
-                {"name": "Recliner",
-                 "tokens": "adjustable back, footrest, ultimate comfort, plush padding, casual style"},
-                {"name": "Club Chair",
-                 "tokens": "deep seating, rounded back, armrests, perfect for lounging"},
-                {"name": "Chaise Armchair",
-                 "tokens": "extended seat length, relaxing, modern comfort, elegant lines"}
-            ],
-            "Industrial and Rustic Armchair": [
-                {"name": "Leather Armchair",
-                 "tokens": "raw aged leather, rugged industrial aesthetic, sturdy build, distressed finish, bold textures"},
-                {"name": "Metal Frame Armchair",
-                 "tokens": "leather or fabric seat, sturdy metal frame, industrial design, modern edge, raw materials"},
-                {"name": "Wooden Armchair",
-                 "tokens": "natural finishes, exposed wood, rustic charm, earthy tones, handcrafted feel"}
-            ],
-            "Eclectic and Bold Armchair": [
-                {"name": "Accent Armchair",
-                 "tokens": "vibrant colors, patterned fabrics, unique shapes, statement piece, eclectic style"},
-                {"name": "Art Deco Armchair",
-                 "tokens": "geometric patterns, luxurious materials, velvet or gold accents, bold design, vintage glamour"},
-                {"name": "Egg or Ball Chair",
-                 "tokens": "futuristic design, curved shell, modern aesthetic, bold statement"}
-            ],
-            "Outdoor Armchair": [
-                {"name": "Wicker Armchair",
-                 "tokens": "lightweight, weather-resistant, patio or balcony, natural texture, outdoor comfort"},
-                {"name": "Teak Armchair",
-                 "tokens": "durable, stylish, outdoor lounging, natural wood finish, weatherproof"},
-                {"name": "Sling Armchair",
-                 "tokens": "fabric stretched over frame, lightweight metal or wood, modern outdoor design, breathable material, casual seating"}
-            ]
-        }
-    },
-    "Buffet": {
-        "options": [
-            "None",
-            "Classic Buffet",
-            "Modern Buffet",
-            "Industrial Buffet",
-            "Rustic Buffet"
-        ],
-        "subcategories": {
-            "Classic Buffet": [
-                {"name": "Ornate Wooden Buffet",
-                 "tokens": "ornate carvings, wooden finish, classic design, elegant storage, luxurious style"},
-                {"name": "Mirrored Buffet",
-                 "tokens": "mirrored panels, classic aesthetic, glamorous vibe, reflective surfaces, elegant design"}
-            ],
-            "Modern Buffet": [
-                {"name": "Sleek Minimalist Buffet",
-                 "tokens": "clean lines, minimalist design, modern aesthetic, glossy finish, functional storage"},
-                {"name": "Mid-Century Buffet",
-                 "tokens": "retro design, tapered legs, wooden finish, bold colors, vintage charm"}
-            ],
-            "Industrial Buffet": [
-                {"name": "Metal and Wood Buffet",
-                 "tokens": "industrial design, metal frame, wooden top, raw finish, sturdy build"},
-                {"name": "Distressed Buffet",
-                 "tokens": "distressed finish, industrial style, rugged look, metal accents, functional storage"}
-            ],
-            "Rustic Buffet": [
-                {"name": "Reclaimed Wood Buffet",
-                 "tokens": "reclaimed wood, rustic charm, natural finish, earthy tones, handcrafted feel"}
-            ]
-        }
-    },
-    "Sideboard": {
-        "options": [
-            "None",
-            "Classic Sideboard",
-            "Modern Sideboard",
-            "Industrial Sideboard",
-            "Rustic Sideboard"
-        ],
-        "subcategories": {
-            "Classic Sideboard": [
-                {"name": "Traditional Wooden Sideboard",
-                 "tokens": "wooden finish, classic design, ornate details, elegant storage, timeless style"},
-                {"name": "Antique Sideboard",
-                 "tokens": "antique design, wooden finish, vintage charm, intricate carvings, luxurious feel"}
-            ],
-            "Modern Sideboard": [
-                {"name": "Minimalist Sideboard",
-                 "tokens": "clean lines, minimalist design, modern aesthetic, glossy finish, functional storage"},
-                {"name": "Mid-Century Sideboard",
-                 "tokens": "retro design, tapered legs, wooden finish, bold colors, vintage charm"}
-            ],
-            "Industrial Sideboard": [
-                {"name": "Metal and Wood Sideboard",
-                 "tokens": "industrial design, metal frame, wooden top, raw finish, sturdy build"},
-                {"name": "Distressed Sideboard",
-                 "tokens": "distressed finish, industrial style, rugged look, metal accents, functional storage"}
-            ],
-            "Rustic Sideboard": [
-                {"name": "Reclaimed Wood Sideboard",
-                 "tokens": "reclaimed wood, rustic charm, natural finish, earthy tones, handcrafted feel"}
-            ]
-        }
-    },
-    "Rug": {
-        "options": [
-            "None",
-            "Outdoor Rug",
-            "Bohemian Rug",
-            "Modern Rug",
-            "Classic Rug"
-        ],
-        "subcategories": {
-            "Outdoor Rug": [
-                {"name": "Weatherproof Outdoor Rug",
-                 "tokens": "weatherproof material, outdoor use, durable design, vibrant colors, textured pattern"}
-            ],
-            "Bohemian Rug": [
-                {"name": "Patterned Bohemian Rug",
-                 "tokens": "bohemian style, vibrant patterns, layered design, artistic feel"}
-            ],
-            "Modern Rug": [
-                {"name": "Geometric Modern Rug",
-                 "tokens": "geometric patterns, modern design, neutral tones, sleek texture, contemporary style"}
-            ],
-            "Classic Rug": [
-                {"name": "Persian Classic Rug",
-                 "tokens": "classic design, intricate patterns, rich colors, plush texture, luxurious feel"}
-            ]
-        }
-    },
-    "Dining table and chairs": {
-        "options": [
-            "None",
-            "two-seat rectangular table",
-            "four-seat rectangular table",
-            "six-seat rectangular table",
-            "Round dining table",
-            "Extendable dining table"
-        ]
-    },
-    "Bed": {
-        "options": [
-            "None",
-            "single bed",
-            "double bed",
-            "queen bed",
-            "king bed",
-            "canopy bed",
-            "platform bed",
-            "sleigh bed"
-        ]
-    },
-    "Shelves": {
-        "options": [
-            "None",
-            "floating shelf",
-            "wall-mounted shelf",
-            "bookshelf",
-            "corner shelf"
-        ]
-    },
-    "Floor Lamp": {
-        "options": [
-            "None",
-            "Minimalist Floor Lamp",
-            "Industrial Floor Lamp",
-            "Modern Floor Lamp",
-            "Classic Floor Lamp"
-        ],
-        "subcategories": {
-            "Minimalist Floor Lamp": [
-                {"name": "Sleek Minimalist Floor Lamp",
-                 "tokens": "sleek design, minimalist style, neutral tones, metal frame, modern lighting"}
-            ],
-            "Industrial Floor Lamp": [
-                {"name": "Metal Industrial Floor Lamp",
-                 "tokens": "industrial design, metal frame, raw finish, exposed bulb, modern edge"}
-            ],
-            "Modern Floor Lamp": [
-                {"name": "Arched Modern Floor Lamp",
-                 "tokens": "modern design, arched shape, sleek frame, ambient lighting, contemporary style"}
-            ],
-            "Classic Floor Lamp": [
-                {"name": "Traditional Floor Lamp",
-                 "tokens": "classic design, fabric shade, wooden base, warm lighting, elegant style"}
-            ]
-        }
-    },
-    "Table Lamp": {
-        "options": [
-            "None",
-            "Classic Table Lamp",
-            "Modern Table Lamp",
-            "Industrial Table Lamp",
-            "Minimalist Table Lamp"
-        ],
-        "subcategories": {
-            "Classic Table Lamp": [
-                {"name": "Traditional Table Lamp",
-                 "tokens": "classic design, fabric shade, wooden base, warm lighting, elegant style"}
-            ],
-            "Modern Table Lamp": [
-                {"name": "Geometric Modern Table Lamp",
-                 "tokens": "modern design, geometric shape, sleek frame, ambient lighting, contemporary style"}
-            ],
-            "Industrial Table Lamp": [
-                {"name": "Metal Industrial Table Lamp",
-                 "tokens": "industrial design, metal frame, raw finish, exposed bulb, modern edge"}
-            ],
-            "Minimalist Table Lamp": [
-                {"name": "Sleek Minimalist Table Lamp",
-                 "tokens": "sleek design, minimalist style, neutral tones, metal frame, modern lighting"}
-            ]
-        }
-    }
+# Описание контроля камеры
+camera_control = {
+    "None": "",
+    "Front view": "Front view",
+    "Side view": "Side view",
+    "High-angle view": "High-angle view",
+    "Low-angle view": "Low-angle view",
+    "Dutch angle view": "Dutch angle view",
+    "Top-down view": "Top-down view",
+    "3/4 view": "3/4 view"
 }
 
-# Настройка ширины боковой панели и отступов через CSS
+# Описание типов мебели и их подтипов
+furniture_options = {
+    "None": ["None"],
+    "Seating": [
+        "None", "Two-seater Sofa", "Three-seater Sofa", "Corner Sofa", "Modular Sofa",
+        "Sectional Sofa", "Armchair", "Accent Chair", "Recliner", "Chaise Lounge",
+        "Bench", "Stool", "Ottoman",
+    ],
+    "Tables": [
+        "None", "Coffee Table", "Side Table", "Console Table", "Dining Table", "Desk"
+    ],
+    "Storage": [
+        "None", "Bookshelf", "Cabinet", "Chest of Drawers", "Wardrobe", "Sideboard",
+        "Entertainment Center"
+    ],
+    "Beds": [
+        "None", "Single Bed", "Double Bed", "Queen Size Bed", "King Size Bed",
+        "Platform Bed", "Canopy Bed", "Bunk Bed", "Daybed", "Headboard",
+    ],
+    "Lighting": [
+        "None", "Table Lamp", "Floor Lamp", "Pendant Light", "Chandelier", "Wall Sconce"
+    ],
+    "Rugs": [
+        "None", "Large area outdoor rug", "Runner rug", "Round rug", "Horizontal placed rug"
+    ]
+}
+
+# Описание типов комнат
+room_options = [
+    "None", "Living Room", "Bedroom", "Dining Room", "Kitchen", "Home Office",
+    "Bathroom", "Entryway", "Kids Room", "Outdoor Patio", "Balcony",
+    "Studio Apartment", "Hallway", "Outdoor lounge zone"
+]
+
+# Токены качества
+quality_tokens = "Best quality, photorealistic, high resolution, sharp focus, detailed texture, professional photography"
+
+# Негативные токены (если нужны)
+negative_prompt_base = "Worst quality, low quality, blurry, unfocused, text, words, letters, signature, watermark, username, artist name, deformed, mutated, ugly, distorted, poorly drawn, bad anatomy, extra limbs, missing limbs"
+
+
+# ----- Инициализация Session State -----
+if "furniture_type" not in st.session_state:
+    st.session_state.furniture_type = "None"
+if "furniture_subtype" not in st.session_state:
+    st.session_state.furniture_subtype = "None"
+if "room_type" not in st.session_state:
+    st.session_state.room_type = "None"
+if "style" not in st.session_state:
+    st.session_state.style = "None"
+if "lighting" not in st.session_state:
+    st.session_state.lighting = "None"
+if "fov" not in st.session_state:
+    st.session_state.fov = "None"
+if "camera" not in st.session_state:
+    st.session_state.camera = "None"
+if "surface" not in st.session_state:
+    st.session_state.surface = "None"
+if "surrounding_elements" not in st.session_state:
+    st.session_state.surrounding_elements = []
+if "main_prompt" not in st.session_state:
+    st.session_state.main_prompt = ""
+if "negative_prompt" not in st.session_state:
+    st.session_state.negative_prompt = negative_prompt_base
+if "quality_enabled" not in st.session_state:
+    st.session_state.quality_enabled = True
+if "negative_enabled" not in st.session_state:
+    st.session_state.negative_enabled = True
+if "saved_configs" not in st.session_state:
+    st.session_state.saved_configs = {}
+if "model_type" not in st.session_state:
+    st.session_state.model_type = "Fooocus"
+if "prompt_logic" not in st.session_state:
+    st.session_state.prompt_logic = "FLUX"
+
+
+# ----- Функции -----
+def update_subtypes():
+    selected_type = st.session_state.furniture_type_select
+    st.session_state.furniture_type = selected_type
+    if selected_type != "None":
+        current_subtype = st.session_state.get('furniture_subtype', 'None')
+        if selected_type in furniture_options:
+             if current_subtype not in furniture_options[selected_type]:
+                  st.session_state.furniture_subtype = "None"
+        else:
+             st.session_state.furniture_type = "None"
+             st.session_state.furniture_subtype = "None"
+    else:
+        st.session_state.furniture_subtype = "None"
+
+def get_furniture_description():
+    furniture_type = st.session_state.furniture_type
+    subtype = st.session_state.furniture_subtype
+    if furniture_type != "None" and subtype != "None":
+        return f"A {subtype}"
+    elif furniture_type != "None":
+        return f"A piece of {furniture_type.lower()} furniture"
+    return ""
+
+def generate_prompt():
+    logic = st.session_state.prompt_logic
+
+    f_type = st.session_state.get('furniture_type', 'None')
+    f_subtype = st.session_state.get('furniture_subtype', 'None')
+    r_type = st.session_state.get('room_type', 'None')
+    style_sel = st.session_state.get('style', 'None')
+    lighting_sel = st.session_state.get('lighting', 'None')
+    fov_sel = st.session_state.get('fov', 'None')
+    camera_sel = st.session_state.get('camera', 'None')
+    surface_sel = st.session_state.get('surface', 'None')
+    elements_sel = st.session_state.get('surrounding_elements', [])
+
+
+    if logic == "FLUX":
+        if f_type == "None" or f_subtype == "None":
+            if f_type != "Rugs":
+                 return "Please select a Furniture Type and Subtype to use the FLUX logic (unless type is Rugs)."
+            elif f_type == "Rugs" and f_subtype == "None":
+                 return "Please select a specific Rug subtype for FLUX logic."
+
+        fov_text = "Photo"
+        if fov_sel != "None" and fov_sel in fov_control and fov_control[fov_sel]:
+             base_fov_text = fov_control[fov_sel]
+             if "partially visible" in base_fov_text.lower():
+                 fov_text = base_fov_text
+             else:
+                 fov_text = base_fov_text.replace(" shot", "").strip()
+                 if fov_text:
+                     fov_text = fov_text[0].upper() + fov_text[1:]
+                     fov_text += " photo"
+                 else:
+                      fov_text = "Photo"
+
+        camera_angle_desc = "emphasize the sense of space and arrangement, focusing on the subject"
+        if camera_sel != "None" and camera_sel in camera_control and camera_control[camera_sel]:
+            angle_text = camera_control[camera_sel].replace(" view", "").strip().lower()
+            if angle_text:
+                 camera_angle_desc = f"adopt a {angle_text} angle to emphasize the sense of space and arrangement"
+
+        surface_desc = surface_options.get(surface_sel, surface_options["None"])
+
+        details_desc = "the entire room, including surrounding furniture, decor elements, and room architecture,"
+        if elements_sel:
+            valid_elements = [el for el in elements_sel if el in surrounding_element_options]
+            if valid_elements:
+                elements_string = ", ".join(valid_elements)
+                details_desc = f"the entire room, including specific elements like {elements_string}, along with other furniture and room architecture,"
+
+        subject = f_subtype
+        subject_desc_start = subject
+
+        placement = "positioned in the center of the composition"
+        if f_type == "Rugs":
+             placement = "laid out on the floor"
+             surface_desc = ""
+             if surface_sel != "None" and "rug" in surface_options.get(surface_sel, "").lower():
+                  surface_desc = f", {surface_options[surface_sel].replace(' covering the floor','')}"
+
+
+        style_desc = f"{style_sel} style" if style_sel != "None" and style_sel in style_prompts else "a specified style"
+        room_desc = r_type if r_type != "None" and r_type in room_options else "room"
+        lighting_condition_desc = "under clear diffuse lighting conditions"
+        if lighting_sel != "None":
+             if lighting_sel in lighting_control and lighting_control[lighting_sel]:
+                 lighting_condition_desc = f"under {lighting_sel.lower()} conditions"
+             elif lighting_sel != "None":
+                 lighting_condition_desc = f"with {lighting_sel.lower()} lighting"
+
+        atmosphere_desc = f"in {style_desc} {room_desc} with bright airy atmosphere"
+
+        prompt = (
+            f"{fov_text} of a {subject_desc_start} {placement}{surface_desc}, {atmosphere_desc}, "
+            f"captured with a Nikon Z7 II camera and a 24mm f/1.2L lens. "
+            f"Set the aperture to f/22 for a wide depth of field, ensuring {details_desc} is in sharp focus. "
+            f"The composition should {camera_angle_desc}, with the {subject}. "
+            f"Adjust the shutter speed to 1/160 to maintain crisp clarity {lighting_condition_desc}. "
+            f"Set the white balance to 6500k to ensure a neutral white color pallete. "
+            f"Soft shadows and subtle reflections on mixed materials can be used to add highlight on the artistic decor and unique shapes within the open space."
+        )
+        prompt = prompt.replace(", ,", ",").replace(" ,", ",").replace("  ", " ")
+
+
+    else: # SDXL Logic
+        furniture_desc = get_furniture_description()
+
+        style_prompt_text = style_prompts.get(style_sel, "")
+        if r_type != "None" and style_sel != "None":
+             room_desc = f" in a {style_sel} {r_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity{style_prompt_text}"
+        elif r_type != "None":
+            room_desc = f" in a {r_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
+        else:
+            room_desc = " in a detailed indoor setting with visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
+
+        lighting_prompt_text = lighting_control.get(lighting_sel, "")
+        lighting_desc = f" {lighting_prompt_text}" if lighting_sel != "None" and lighting_prompt_text else " with clear daylight illuminating the scene, highlighting all details"
+
+        fov = fov_sel
+        camera = camera_sel
+        view_desc = ""
+
+        if fov != "None" and camera != "None":
+            fov_text_sdxl = fov_control.get(fov, "")
+            camera_text_sdxl = camera_control.get(camera, "")
+            if camera_text_sdxl and camera in ["Front view", "Side view"]:
+                 view_desc = f"{fov_text_sdxl} {camera_text_sdxl}"
+            elif fov_text_sdxl and camera_text_sdxl:
+                 view_desc = f"{fov_text_sdxl} from a {camera_text_sdxl}"
+            else:
+                 view_desc = fov_text_sdxl
+        elif fov != "None":
+             view_desc = fov_control.get(fov, "")
+        elif camera != "None":
+             camera_text_sdxl = camera_control.get(camera, "")
+             if camera_text_sdxl and "view" not in camera_text_sdxl.lower():
+                  view_desc = f"View from a {camera_text_sdxl}"
+             else:
+                  view_desc = camera_text_sdxl
+
+        if view_desc and furniture_desc:
+             if furniture_desc.lower().startswith(("a ", "an ")):
+                 article = furniture_desc.split(' ', 1)[0]
+                 noun_phrase = furniture_desc.split(' ', 1)[1]
+                 prompt_start = f"{view_desc} of {article} {noun_phrase.lower()}"
+             else:
+                 article = "an" if furniture_desc.lower().startswith(("a", "e", "i", "o", "u")) else "a"
+                 prompt_start = f"{view_desc} of {article} {furniture_desc.lower()}"
+        elif furniture_desc:
+             prompt_start = furniture_desc
+        elif view_desc:
+             prompt_start = view_desc
+        else:
+             prompt_start = "A scene"
+
+        centering_desc = f" The {f_subtype} is positioned in the center of the composition." if f_subtype != "None" and furniture_desc else ""
+
+        if prompt_start != "A scene":
+            if lighting_desc.strip().startswith("with"):
+                lighting_desc = lighting_desc.strip()[4:].strip()
+            prompt = f"{prompt_start}{room_desc}, with {lighting_desc}{centering_desc}".replace("..", ".").replace(", ,", ",").replace(" ,", ",").strip()
+        else:
+            if lighting_desc.strip().startswith("with"):
+                 lighting_desc = lighting_desc.strip()[4:].strip()
+            if room_desc.strip().startswith("in a"):
+                 room_desc = room_desc.strip()[4:].strip()
+            prompt = f"{room_desc.capitalize()}, with {lighting_desc}".replace("..", ".").replace(", ,", ",").replace(" ,", ",").strip()
+
+    # Add quality tokens
+    if st.session_state.quality_enabled:
+        if prompt and not prompt.endswith(" ") and quality_tokens:
+            prompt += " "
+        prompt += quality_tokens
+
+    return prompt.strip()
+
+def generate_negative_prompt():
+    if st.session_state.negative_enabled:
+        return negative_prompt_base
+    return ""
+
+# ----- UI Definition -----
+with st.sidebar:
+    st.title("Settings") # Оставляем этот заголовок для сайдбара
+
+    st.header("Generation Logic")
+    prompt_logic_options = ["SDXL", "FLUX"]
+    current_logic = st.session_state.prompt_logic
+    if current_logic not in prompt_logic_options:
+        st.session_state.prompt_logic = "FLUX" # Сброс на дефолт, если значение некорректно
+        current_logic = "FLUX"
+    st.selectbox(
+        "Select Prompt Logic", prompt_logic_options,
+        index=prompt_logic_options.index(current_logic),
+        key="prompt_logic",
+        help="Choose the generation logic: SDXL (current flexible logic) or FLUX (specific structured logic)."
+    )
+
+    st.header("Furniture / Main Subject")
+    furniture_type_keys = list(furniture_options.keys())
+    current_f_type_ui = st.session_state.furniture_type
+    if current_f_type_ui not in furniture_type_keys:
+        st.session_state.furniture_type = "None"
+        current_f_type_ui = "None"
+    st.selectbox(
+        "Select Type", furniture_type_keys,
+        index=furniture_type_keys.index(current_f_type_ui),
+        key="furniture_type_select", on_change=update_subtypes
+    )
+
+    current_f_type = st.session_state.furniture_type
+    if current_f_type != "None":
+        subtype_options = furniture_options.get(current_f_type, ["None"])
+        current_subtype = st.session_state.get('furniture_subtype', 'None')
+        try:
+            current_subtype_index = subtype_options.index(current_subtype) if current_subtype in subtype_options else 0
+        except ValueError: current_subtype_index = 0
+        st.selectbox(
+            f"Select {current_f_type} Subtype", subtype_options,
+            index=current_subtype_index, key="furniture_subtype"
+        )
+    else:
+         st.selectbox("Select Subtype", ["None"], index=0, key="furniture_subtype", disabled=True)
+
+    st.header("Placement Surface")
+    surface_type_keys = list(surface_options.keys())
+    current_surface = st.session_state.surface
+    if current_surface not in surface_type_keys:
+        st.session_state.surface = "None"
+        current_surface = "None"
+    st.selectbox(
+        "Surface Type", surface_type_keys,
+        index=surface_type_keys.index(current_surface),
+        key="surface", help="Select the type of surface the main object is placed on/near."
+    )
+
+    st.header("Environment")
+    room_options_actual = room_options
+    current_room = st.session_state.room_type
+    if current_room not in room_options_actual:
+        st.session_state.room_type = "None"
+        current_room = "None"
+    st.selectbox("Room Type", room_options_actual, index=room_options_actual.index(current_room), key="room_type")
+
+    style_keys = list(style_prompts.keys())
+    current_style = st.session_state.style
+    if current_style not in style_keys:
+        st.session_state.style = "None"
+        current_style = "None"
+    st.selectbox("Style", style_keys, index=style_keys.index(current_style), key="style")
+
+    st.header("Visuals")
+    lighting_keys = list(lighting_control.keys())
+    current_lighting = st.session_state.lighting
+    if current_lighting not in lighting_keys:
+        st.session_state.lighting = "None"
+        current_lighting = "None"
+    st.selectbox("Lighting", lighting_keys, index=lighting_keys.index(current_lighting), key="lighting")
+
+    fov_keys = list(fov_control.keys())
+    current_fov = st.session_state.fov
+    if current_fov not in fov_keys:
+        st.session_state.fov = "None"
+        current_fov = "None"
+    st.selectbox("Field of View (FOV)", fov_keys, index=fov_keys.index(current_fov), key="fov")
+
+    camera_keys = list(camera_control.keys())
+    current_camera = st.session_state.camera
+    if current_camera not in camera_keys:
+        st.session_state.camera = "None"
+        current_camera = "None"
+    st.selectbox("Camera Angle/View", camera_keys, index=camera_keys.index(current_camera), key="camera")
+
+    st.header("Surrounding Details")
+    surrounding_options_actual = surrounding_element_options
+    current_elements = [el for el in st.session_state.surrounding_elements if el in surrounding_options_actual]
+    st.multiselect(
+        "Select surrounding elements to include:", surrounding_options_actual,
+        default=current_elements, key="surrounding_elements",
+        help="Choose specific items visible in the scene for added detail (optional)."
+    )
+
+    st.header("Prompt Settings")
+    st.checkbox("Add Quality Tokens", value=st.session_state.quality_enabled, key="quality_enabled")
+    st.checkbox("Enable Negative Prompt", value=st.session_state.negative_enabled, key="negative_enabled")
+
+# ----- Main App Area -----
+
+# Вставляем ваш код заголовка с логотипом:
 st.markdown(
     """
+    <div class="title-container">
+        <h1 style="color: white; margin: 0;">
+            <img src="https://res.cloudinary.com/dts5q0ryk/image/upload/v1742992900/Logo_white_a3f4t1.png" width="60" height="60" style="vertical-align: middle; margin-right: 10px;">
+            Nfinite Prompt Generator
+        </h1>
+    </div>
     <style>
-    [data-testid="stSidebar"] {
-        width: 300px !important;
-    }
-    [data-testid="stSidebar"] > div:first-child {
-        width: 300px !important;
-    }
-    /* Уменьшаем отступ от сайдбара */
-    .main-content {
-        margin-left: 310px !important;
-        padding-left: 10px !important;
-    }
-    /* Уточняем селектор для основной области Streamlit */
-    [data-testid="stAppViewContainer"] > div:first-child {
-        margin-left: 310px !important;
-    }
-    .title-container {
-        position: sticky;
-        top: 0;
-        padding: 10px;
-        z-index: 100;
-        text-align: left !important; /* Выравнивание названия влево */
-        background-color: transparent; /* Убираем фон */
-    }
-    .title-container h1 {
-        text-align: left !important; /* Дополнительное выравнивание */
-        display: inline-flex;
-        align-items: center;
-    }
-    .title-container img {
-        margin-right: 10px; /* Отступ между логотипом и текстом */
-        vertical-align: middle;
-    }
-    /* Стили для кнопок */
-    .stButton button {
-        background-color: #353c58;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-    }
-    .stButton button:hover {
-        background-color: #2a2f45;
-    }
-    /* Стили для кнопки Quality Prompt */
-    .quality-enabled {
-        background-color: #285319 !important;
-        color: white !important;
-    }
-    /* Стили для кнопки Negative Prompt */
-    .negative-enabled {
-        background-color: #531919 !important;
-        color: white !important;
-    }
-    .stTextArea textarea {
-        background-color: #2a2a3e;
-        color: white;
-        word-wrap: break-word;
-    }
-    .stMarkdown {
-        color: white;
-    }
-    @media (max-width: 600px) {
-        .main-content {
-            margin-left: 10px !important;
-            padding-left: 10px !important;
+        .title-container img {
+            vertical-align: middle;
+            margin-right: 10px; /* Отступ справа от лого */
         }
-        [data-testid="stSidebar"] {
-            width: 100% !important;
+        .stApp > header {
+             background-color: transparent; /* Попробовать убрать фон заголовка Streamlit по умолчанию */
         }
-    }
+       /* Стилизация для темной темы */
+       /* Используем CSS переменные Streamlit для совместимости */
+       body:not([data-theme="light"]) .title-container h1 {
+           color: var(--text-color, white) !important;
+       }
+       /* Стилизация для светлой темы */
+       body[data-theme="light"] .title-container h1 {
+          color: var(--text-color, black) !important;
+       }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Название в основной области с логотипом
-st.markdown(
-    """
-    <div class="title-container">
-        <h1 style="color: white; margin: 0;">
-            <img src="https://res.cloudinary.com/dts5q0ryk/image/upload/v1742992900/Logo_white_a3f4t1.png" width="60" height="60">
-            Nfinite Prompt Generator
-        </h1>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
-# Инициализация состояния для полей, чтобы гарантировать "None" по умолчанию
-if "style" not in st.session_state:
-    st.session_state.style = "None"
-if "camera" not in st.session_state:
-    st.session_state.camera = "None"
-if "lighting" not in st.session_state:
-    st.session_state.lighting = "None"
-if "fov" not in st.session_state:
-    st.session_state.fov = "None"
-if "furniture_type" not in st.session_state:
-    st.session_state.furniture_type = "None"
-if "furniture_subtype" not in st.session_state:
-    st.session_state.furniture_subtype = "None"
-if "material" not in st.session_state:
-    st.session_state.material = "None"
-if "color_palette" not in st.session_state:
-    st.session_state.color_palette = "None"
-if "room_type" not in st.session_state:
-    st.session_state.room_type = "None"
-if "model_type" not in st.session_state:
-    st.session_state.model_type = "Fooocus"
-if "main_prompt" not in st.session_state:
-    st.session_state.main_prompt = ""
-if "quality_enabled" not in st.session_state:
-    st.session_state.quality_enabled = False
-if "negative_enabled" not in st.session_state:
-    st.session_state.negative_enabled = False
-if "saved_configs" not in st.session_state:
-    st.session_state.saved_configs = []
+main_prompt_generated = generate_prompt()
+negative_prompt_generated = generate_negative_prompt()
 
-# Обёртка для основной области с классом для отступа
-st.markdown('<div class="main-content">', unsafe_allow_html=True)
+st.subheader("Main Prompt")
+main_prompt_input = st.text_area("Edit or use the generated prompt:", value=main_prompt_generated, height=150, key="main_prompt_area")
+st.session_state.main_prompt = main_prompt_input
 
-# Боковая панель для ввода данных
-with st.sidebar:
-    st.header("Furniture Details")
-    furniture_type = st.selectbox(
-        "Select Furniture Type",
-        ["None"] + sorted([key for key in subject_subcategories.keys() if key != "None"]),
-        index=0,
-        key="furniture_type",
-        help="Choose the type of furniture to visualize. Options include sofas, tables, chairs, and more."
-    )
-    furniture_subtype = st.selectbox(
-        "Select Furniture Subtype",
-        sorted(subject_subcategories[furniture_type]["options"]),
-        index=0,
-        key="furniture_subtype",
-        help="Select a specific subtype of the furniture. For example, a 'Coffee Table' or 'Dining Chair'."
-    )
-    material = st.selectbox(
-        "Select Material",
-        ["None", "Leather", "Wood", "Fabric", "Metal"],
-        index=0,
-        key="material",
-        help="Choose the material of the furniture. For example, 'Leather' for a sofa or 'Wood' for a table."
-    )
-    color_palette = st.selectbox(
-        "Select Color Palette",
-        sorted(color_palettes.keys()),
-        index=0,
-        key="color_palette",
-        help="Choose the color palette for the furniture."
-    )
+if st.button("Copy Main Prompt"):
+    pyperclip.copy(main_prompt_input)
+    st.success("Main prompt copied to clipboard!")
 
-    st.header("Room Settings")
-    room_type = st.selectbox(
-        "Select Room Type",
-        ["None", "Living Room", "Bedroom", "Dining Room", "Office", "Kitchen", "Bathroom", "Hallway", "Patio", "Study", "Lounge"],
-        index=0,
-        key="room_type",
-        help="Select the type of room for the visualization or select None to skip."
-    )
-    style = st.selectbox(
-        "Select Style",
-        sorted(style_prompts.keys()),
-        index=0,
-        key="style",
-        help="Choose the interior design style or select None to skip."
-    )
-
-    st.header("Camera Control")
-    camera = st.selectbox(
-        "Select Camera Angle/View",
-        sorted(camera_control.keys()),
-        index=0,
-        key="camera",
-        help="Choose the camera angle for the shot."
-    )
-
-    st.header("Lighting Control")
-    lighting = st.selectbox(
-        "Select Lighting",
-        sorted(lighting_control.keys()),
-        index=0,
-        key="lighting",
-        help="Choose the lighting conditions for the scene."
-    )
-
-    st.header("FOV")
-    fov = st.selectbox(
-        "Select Field of View",
-        sorted(fov_control.keys()),
-        index=0,
-        key="fov",
-        help="Choose the field of view for the shot."
-    )
-
-    st.header("Prompt Settings")
-    max_length = st.slider("Max Prompt Length", min_value=100, max_value=1000, value=400, step=50, help="Set the maximum character limit for the optimized prompt.")
-
-    st.header("Quality and Negative Prompts")
-    quality_button_class = "quality-enabled" if st.session_state.quality_enabled else ""
-    if st.button("Enable Quality Prompt", key="quality_btn", help="Add high-quality rendering tokens to the prompt"):
-        st.session_state.quality_enabled = not st.session_state.quality_enabled
-        st.rerun()
-
-    st.markdown(f'<script>document.querySelector("button[data-testid=\'stButton\'][key=\'quality_btn\']").classList.add("{quality_button_class}");</script>', unsafe_allow_html=True)
-
-    negative_button_class = "negative-enabled" if st.session_state.negative_enabled else ""
-    if st.button("Enable Negative Prompt", key="negative_btn", help="Add negative rendering tokens to exclude unwanted elements"):
-        st.session_state.negative_enabled = not st.session_state.negative_enabled
-        st.rerun()
-    st.markdown(f'<script>document.querySelector("button[data-testid=\'stButton\'][key=\'negative_btn\']").classList.add("{negative_button_class}");</script>', unsafe_allow_html=True)
-
-# Основная область
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Функция для генерации описания мебели
-def get_furniture_description():
-    furniture_type = st.session_state.furniture_type
-    subtype = st.session_state.furniture_subtype
-    material = st.session_state.material
-    color_palette = st.session_state.color_palette
-
-    # If furniture type or subtype is "None", return an empty string
-    if furniture_type == "None" or subtype == "None":
-        return ""
-
-    # Base description starts with the subtype
-    desc = f"A {subtype}"
-
-    # Add material if not "None"
-    if material != "None":
-        desc += f" made of {material}"
-    
-    # Add color palette if not "None"
-    if color_palette != "None":
-        desc += f" in a {color_palette} palette"
-
-    # Add subcategory tokens if available
-    if 'subcategories' in subject_subcategories[furniture_type] and subtype in subject_subcategories[furniture_type]['subcategories']:
-        for sub in subject_subcategories[furniture_type]['subcategories'][subtype]:
-            if sub['name'] == subtype:
-                desc += f", {sub['tokens']}"
-                break
-
-    # Special case for Bedside/Side Table
-    if furniture_type == "Table" and (subtype == "Bedside Table" or subtype == "Side Table"):
-        desc = f"A stylish {subtype}"
-        if material != "None":
-            desc += f" made of {material}"
-        if color_palette != "None":
-            desc += f" in a {color_palette} palette"
-        desc += ", featuring sturdy construction, smooth surface, modern design, and functional decor"
-
-    return desc
-
-# Функция для генерации промпта
-def generate_prompt(model_type="Fooocus"):
-    # Furniture description (might be empty if all are "None")
-    furniture_desc = get_furniture_description()
-
-    # Room and background description with style tokens
-    if st.session_state.room_type != "None" and st.session_state.style != "None":
-        room_desc = f" in a {st.session_state.style} {st.session_state.room_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity {style_prompts[st.session_state.style]}"
-    elif st.session_state.room_type != "None":
-        room_desc = f" in a {st.session_state.room_type} with a detailed interior featuring visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
-    else:
-        room_desc = " in a detailed indoor setting with visible furniture, plain walls, and distinct decor elements, all rendered with crisp clarity"
-
-    # Lighting description (skip if "None")
-    lighting_desc = f" with {lighting_control[st.session_state.lighting]}" if st.session_state.lighting != "None" else " with clear daylight illuminating the scene, highlighting all details"
-
-    # FOV and Camera Control logic
-    fov = st.session_state.fov
-    camera = st.session_state.camera
-    view_desc = ""
-
-    if fov != "None" and camera != "None":
-        if camera == "3/4 view":
-            # For 3/4 view: "FOV + Camera Control"
-            view_desc = f"{fov_control[fov].lower()} view from a {camera_control[camera]}"
-        else:
-            # For other camera angles: "Camera Control + FOV"
-            view_desc = f"{fov_control[fov]} {camera_control[camera]}"
-    elif fov != "None":
-        view_desc = f"{fov_control[fov]}"
-    elif camera != "None":
-        view_desc = f"from a {camera_control[camera]}"
-
-    # Combine view description with furniture description
-    if view_desc and furniture_desc:
-        prompt_start = f"{view_desc} of {furniture_desc.lower()}"
-    elif furniture_desc:
-        prompt_start = furniture_desc
-    else:
-        prompt_start = ""
-
-    # Default centering phrase (always included if furniture is specified)
-    centering_desc = f" The {st.session_state.furniture_subtype} is positioned in the center of a composition." if furniture_desc else ""
-
-    # Combine the prompt
-    if prompt_start:
-        prompt = f"{prompt_start}{room_desc}{lighting_desc}{centering_desc}"
-    else:
-        prompt = f"{room_desc[1:]}{lighting_desc}"  # Remove leading " in" for grammatical correctness
-
-    # Add quality tokens if enabled
-    if st.session_state.quality_enabled:
-        prompt += " " + quality_tokens
-    return prompt
-
-# Генерируем начальный промпт и сохраняем в session_state
-if not st.session_state.main_prompt:
-    st.session_state.main_prompt = generate_prompt()
-
-# Обновляем промпт при каждом рендере
-st.session_state.main_prompt = generate_prompt(st.session_state.model_type)
-
-# Окно для негативного промпта
-negative_prompt = ""
 if st.session_state.negative_enabled:
-    negative_prompt = negative_tokens
+    st.subheader("Negative Prompt")
+    negative_prompt_input = st.text_area("Edit or use the generated negative prompt:", value=negative_prompt_generated, height=100, key="negative_prompt_area")
+    st.session_state.negative_prompt = negative_prompt_input
 
-# Главный промпт с кнопкой копирования (закомментировано)
-st.subheader("Generated Prompt")
-main_prompt_input = st.text_area("Generated Prompt", value=st.session_state.main_prompt, height=200, key="main_prompt_area")
-st.markdown(
-    f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
-    unsafe_allow_html=True
-)
+    if st.button("Copy Negative Prompt"):
+        pyperclip.copy(negative_prompt_input)
+        st.success("Negative prompt copied to clipboard!")
+else:
+     negative_prompt_input = ""
+     st.session_state.negative_prompt = ""
 
-# Закомментируем кнопку копирования
-# if st.button("Copy Main Prompt to Clipboard", key="copy_main_btn"):
-#     try:
-#         pyperclip.copy(main_prompt_input)
-#         st.success("Main prompt copied to clipboard!")
-#     except pyperclip.PyperclipException:
-#         st.error("Unable to copy to clipboard. Please manually copy the prompt above. Ensure 'xclip' or 'xsel' is installed on your system if you're on Linux.")
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Негативный промпт с кнопкой копирования (закомментировано)
-st.subheader("Negative Prompt")
-negative_prompt_input = st.text_area("Negative Prompt", value=negative_prompt, height=150, key="negative_prompt_area")
-st.markdown(
-    f'<style>.stTextArea textarea {{ background-color: #2a2a3e; color: white; word-wrap: break-word; }}</style>',
-    unsafe_allow_html=True
-)
-
-# Закомментируем кнопку копирования
-# if st.button("Copy Negative Prompt to Clipboard", key="copy_negative_btn"):
-#     try:
-#         pyperclip.copy(negative_prompt_input)
-#         st.success("Negative prompt copied to clipboard!")
-#     except pyperclip.PyperclipException:
-#         st.error("Unable to copy to clipboard. Please manually copy the prompt above. Ensure 'xclip' or 'xsel' is installed on your system if you're on Linux.")
-
-# Кнопка для сброса настроек
-if st.button("Reset Settings", help="Reset all settings to default"):
-    st.session_state.clear()
-    st.rerun()
-
-# Кнопка для сохранения настроек
+# ----- Configuration Management -----
 st.divider()
-if st.button("Save Configuration", help="Save the current configuration"):
-    config = {
-        "furniture_type": st.session_state.furniture_type,
-        "furniture_subtype": st.session_state.furniture_subtype,
-        "material": st.session_state.material,
-        "color_palette": st.session_state.color_palette,
-        "room_type": st.session_state.room_type,
-        "style": st.session_state.style,
-        "camera": st.session_state.camera,
-        "lighting": st.session_state.lighting,
-        "fov": st.session_state.fov,
-        "quality_enabled": st.session_state.quality_enabled,
-        "negative_enabled": st.session_state.negative_enabled,
-        "model_type": st.session_state.model_type,
-        "main_prompt": main_prompt_input,
-        "negative_prompt": negative_prompt_input
-    }
-    st.session_state.saved_configs.append(config)
-    st.success("Configuration saved!")
+st.header("Configuration Management")
 
-# Кнопка для загрузки сохранённых настроек
-if st.session_state.saved_configs:
-    st.subheader("Load Saved Configuration")
-    config_names = [f"Configuration {i+1}" for i in range(len(st.session_state.saved_configs))]
-    selected_config = st.selectbox("Select a saved configuration", config_names)
-    if st.button("Load Selected Configuration", help="Load the selected configuration"):
-        config_index = config_names.index(selected_config)
-        config = st.session_state.saved_configs[config_index]
-        st.session_state.furniture_type = config["furniture_type"]
-        st.session_state.furniture_subtype = config["furniture_subtype"]
-        st.session_state.material = config["material"]
-        st.session_state.color_palette = config["color_palette"]
-        st.session_state.room_type = config["room_type"]
-        st.session_state.style = config["style"]
-        st.session_state.camera = config["camera"]
-        st.session_state.lighting = config["lighting"]
-        st.session_state.fov = config["fov"]
-        st.session_state.quality_enabled = config["quality_enabled"]
-        st.session_state.negative_enabled = config["negative_enabled"]
-        st.session_state.model_type = config["model_type"]
-        st.session_state.main_prompt = config["main_prompt"]
-        st.success("Configuration loaded!")
+config_name = st.text_input("Configuration Name", key="config_name_input")
+
+if st.button("Save Configuration", key="save_config_btn"):
+    if config_name:
+        saved_elements = [el for el in st.session_state.surrounding_elements if el in surrounding_element_options]
+        current_f_type_save = st.session_state.furniture_type
+        current_f_subtype_save = st.session_state.furniture_subtype
+
+        config = {
+            "furniture_type": current_f_type_save if current_f_type_save in furniture_options else "None",
+            "furniture_subtype": current_f_subtype_save if current_f_type_save != "None" and current_f_subtype_save in furniture_options.get(current_f_type_save, ["None"]) else "None",
+            "room_type": st.session_state.room_type if st.session_state.room_type in room_options else "None",
+            "style": st.session_state.style if st.session_state.style in style_prompts else "None",
+            "lighting": st.session_state.lighting if st.session_state.lighting in lighting_control else "None",
+            "fov": st.session_state.fov if st.session_state.fov in fov_control else "None",
+            "camera": st.session_state.camera if st.session_state.camera in camera_control else "None",
+            "surface": st.session_state.surface if st.session_state.surface in surface_options else "None",
+            "surrounding_elements": saved_elements,
+            "quality_enabled": st.session_state.quality_enabled,
+            "negative_enabled": st.session_state.negative_enabled,
+            "prompt_logic": st.session_state.prompt_logic if st.session_state.prompt_logic in ["SDXL", "FLUX"] else "FLUX",
+            "model_type": st.session_state.model_type,
+            "main_prompt": main_prompt_input,
+            "negative_prompt": negative_prompt_input if st.session_state.negative_enabled else ""
+        }
+        st.session_state.saved_configs[config_name] = config
+        st.success(f"Configuration '{config_name}' saved!")
         st.rerun()
+    else:
+        st.warning("Please enter a name for the configuration.")
 
-# Показ сохранённых настроек
 if st.session_state.saved_configs:
-    st.subheader("Saved Configurations")
-    st.write(st.session_state.saved_configs)
+    config_options = [""] + list(st.session_state.saved_configs.keys())
+    current_selection_index = 0
+    if "config_select" in st.session_state and st.session_state.config_select in config_options:
+        try: current_selection_index = config_options.index(st.session_state.config_select)
+        except ValueError: current_selection_index = 0
 
-# Закрытие обёртки основной области
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Экспорт промптов в JSON или TXT
-if st.button("Export Prompts to JSON", key="export_json_btn"):
-    config = {
-        "main_prompt": st.session_state.main_prompt,
-        "negative_prompt": negative_prompt_input
-    }
-    json_str = json.dumps(config, indent=4)
-    st.download_button(
-        label="Download JSON",
-        data=json_str,
-        file_name="prompts.json",
-        mime="application/json"
+    config_to_load = st.selectbox(
+        "Load Configuration", options=config_options,
+        index=current_selection_index, key="config_select"
     )
+    if config_to_load:
+        col1_load, col2_delete = st.columns(2)
+        with col1_load:
+            if st.button("Load Selected Configuration", key="load_config_btn"):
+                config = st.session_state.saved_configs[config_to_load]
+                st.session_state.furniture_type = config.get("furniture_type", "None") if config.get("furniture_type", "None") in furniture_options else "None"
+                st.session_state.furniture_subtype = config.get("furniture_subtype", "None") if st.session_state.furniture_type != "None" and config.get("furniture_subtype", "None") in furniture_options.get(st.session_state.furniture_type, ["None"]) else "None"
+                st.session_state.room_type = config.get("room_type", "None") if config.get("room_type", "None") in room_options else "None"
+                st.session_state.style = config.get("style", "None") if config.get("style", "None") in style_prompts else "None"
+                st.session_state.lighting = config.get("lighting", "None") if config.get("lighting", "None") in lighting_control else "None"
+                st.session_state.fov = config.get("fov", "None") if config.get("fov", "None") in fov_control else "None"
+                st.session_state.camera = config.get("camera", "None") if config.get("camera", "None") in camera_control else "None"
+                st.session_state.surface = config.get("surface", "None") if config.get("surface", "None") in surface_options else "None"
+                loaded_elements = config.get("surrounding_elements", [])
+                st.session_state.surrounding_elements = [el for el in loaded_elements if el in surrounding_element_options]
+                st.session_state.quality_enabled = config.get("quality_enabled", True)
+                st.session_state.negative_enabled = config.get("negative_enabled", True)
+                st.session_state.prompt_logic = config.get("prompt_logic", "FLUX") if config.get("prompt_logic", "FLUX") in ["SDXL", "FLUX"] else "FLUX"
+                st.session_state.model_type = config.get("model_type", "Fooocus")
+                st.session_state.main_prompt = config.get("main_prompt", "")
+                st.session_state.negative_prompt = config.get("negative_prompt", negative_prompt_base if st.session_state.negative_enabled else "")
 
-if st.button("Export Prompts to TXT", key="export_txt_btn"):
-    txt_content = f"Main Prompt:\n{st.session_state.main_prompt}\n\nNegative Prompt:\n{negative_prompt_input}"
+                st.session_state.config_select = ""
+                st.rerun()
+        with col2_delete:
+            if st.button("Delete Selected Configuration", key="delete_config_btn", type="secondary"):
+                 if config_to_load in st.session_state.saved_configs:
+                     del st.session_state.saved_configs[config_to_load]
+                     st.success(f"Configuration '{config_to_load}' deleted!")
+                     st.session_state.config_select = ""
+                     st.rerun()
+                 else: st.warning("Please select a valid configuration to delete.")
+
+# ----- Export -----
+st.divider()
+st.header("Export")
+export_col1, export_col2 = st.columns(2)
+current_main_prompt_for_export = main_prompt_input
+current_neg_prompt_for_export = negative_prompt_input if st.session_state.negative_enabled else ""
+with export_col1:
+    json_str_export = json.dumps({
+        "main_prompt": current_main_prompt_for_export,
+        "negative_prompt": current_neg_prompt_for_export
+    }, indent=4)
     st.download_button(
-        label="Download TXT",
-        data=txt_content,
-        file_name="prompts.txt",
-        mime="text/plain"
+        label="Export Current Prompts to JSON", data=json_str_export,
+        file_name="current_prompts.json", mime="application/json", key="export_json_dl_btn"
+    )
+with export_col2:
+    txt_content_export = f"Main Prompt:\n{current_main_prompt_for_export}\n\n"
+    if st.session_state.negative_enabled and current_neg_prompt_for_export:
+        txt_content_export += f"Negative Prompt:\n{current_neg_prompt_for_export}"
+    else: txt_content_export += "Negative Prompt: (disabled or empty)"
+    st.download_button(
+        label="Export Current Prompts to TXT", data=txt_content_export.encode('utf-8'),
+        file_name="current_prompts.txt", mime="text/plain", key="export_txt_dl_btn"
     )
