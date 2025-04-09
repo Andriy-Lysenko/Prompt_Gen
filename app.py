@@ -1,5 +1,5 @@
 import streamlit as st
-# import pyperclip # <<< УБРАНО
+# import pyperclip # Убрано
 import json
 
 # Устанавливаем конфигурацию страницы (лучше делать в самом начале)
@@ -24,29 +24,45 @@ surface_options = {
     "Matte Concrete": "on a matte concrete floor"
 }
 
-# --- Новые опции для окружающих элементов ---
-surrounding_element_options = [
-    "Picture frames on the wall",
-    "Framed floral artworks on wall",
-    "Large potted plant on the left",
-    "Large potted plant on the right",
-    "Stack of books on the floor",
-    "Magazines on a nearby table",
-    "Coffee table with vase of flowers (foreground)",
-    "Sculpture on a pedestal",
-    "Empty coffee cups on a surface",
-    "Laptop on a desk nearby",
-    "Decorative pillows on seating",
-    "Throw blanket draped over furniture",
-    "Visible window with sheer curtains",
-    "Visible window with heavy drapes",
-    "Beige curtains framing the scene",
-    "Modern floor lamp",
-    "Fireplace (inactive)",
-    "Small decorative objects on shelves",
-    "Wall mirror with ornate frame",
-    "Floating wall shelves with books"
-]
+# --- Структурированные опции для Окружающих Элементов ---
+surrounding_details_structured = {
+    "Left Zone": [
+        "Large potted plant (left)",
+        "Modern floor lamp (left)",
+        "Side table (left)",
+    ],
+    "Wall / Background": [
+        "Single picture frame on wall",
+        "Set of 2-3 picture frames on wall",
+        "Multiple picture frames on wall",
+        "Framed floral artwork(s) on wall",
+        "Wall mirror with ornate frame",
+        "Floating wall shelves with books",
+        "Visible window with sheer curtains",
+        "Visible window with heavy drapes",
+        "Beige curtains framing the scene",
+        "Fireplace (inactive)",
+    ],
+    "Right Zone": [
+        "Large potted plant (right)",
+        "Modern floor lamp (right)",
+        "Side table (right)",
+        "Sculpture on a pedestal (right)",
+    ],
+    "Foreground / General": [
+        "Coffee table with vase of flowers (foreground)",
+        "Stack of books on the floor",
+        "Magazines on a nearby table",
+        "Empty coffee cups on a surface",
+        "Laptop on a desk nearby",
+        "Decorative pillows on seating",
+        "Throw blanket draped over furniture",
+        "Small decorative objects on shelves/surfaces",
+    ]
+}
+# Создадим плоский список всех опций для проверки при загрузке и для функции генерации
+all_surrounding_options = [item for sublist in surrounding_details_structured.values() for item in sublist]
+
 
 # Промпты для каждого стиля
 style_prompts = {
@@ -153,38 +169,20 @@ negative_prompt_base = "Worst quality, low quality, blurry, unfocused, text, wor
 
 
 # ----- Инициализация Session State -----
-if "furniture_type" not in st.session_state:
-    st.session_state.furniture_type = "None"
-if "furniture_subtype" not in st.session_state:
-    st.session_state.furniture_subtype = "None"
-if "room_type" not in st.session_state:
-    st.session_state.room_type = "None"
-if "style" not in st.session_state:
-    st.session_state.style = "None"
-if "lighting" not in st.session_state:
-    st.session_state.lighting = "None"
-if "fov" not in st.session_state:
-    st.session_state.fov = "None"
-if "camera" not in st.session_state:
-    st.session_state.camera = "None"
-if "surface" not in st.session_state:
-    st.session_state.surface = "None"
-if "surrounding_elements" not in st.session_state:
-    st.session_state.surrounding_elements = []
-if "main_prompt" not in st.session_state:
-    st.session_state.main_prompt = ""
-if "negative_prompt" not in st.session_state:
-    st.session_state.negative_prompt = negative_prompt_base
-if "quality_enabled" not in st.session_state:
-    st.session_state.quality_enabled = True
-if "negative_enabled" not in st.session_state:
-    st.session_state.negative_enabled = True
-if "saved_configs" not in st.session_state:
-    st.session_state.saved_configs = {}
-if "model_type" not in st.session_state:
-    st.session_state.model_type = "Fooocus"
-if "prompt_logic" not in st.session_state:
-    st.session_state.prompt_logic = "FLUX"
+default_values = {
+    "furniture_type": "None", "furniture_subtype": "None", "room_type": "None",
+    "style": "None", "lighting": "None", "fov": "None", "camera": "None",
+    "surface": "None", "surrounding_elements": [], "main_prompt": "",
+    "negative_prompt": negative_prompt_base, "quality_enabled": True,
+    "negative_enabled": True, "saved_configs": {}, "model_type": "Fooocus",
+    "prompt_logic": "FLUX"
+}
+for key, default_value in default_values.items():
+    if key not in st.session_state:
+        st.session_state[key] = default_value
+for item in all_surrounding_options:
+    if item not in st.session_state:
+         st.session_state[item] = False
 
 
 # ----- Функции -----
@@ -211,6 +209,14 @@ def get_furniture_description():
         return f"A piece of {furniture_type.lower()} furniture"
     return ""
 
+def get_selected_surrounding_elements():
+    """Собирает список описаний для выбранных чекбоксов деталей."""
+    selected = []
+    for item in all_surrounding_options:
+        if st.session_state.get(item, False):
+            selected.append(item)
+    return selected
+
 def generate_prompt():
     logic = st.session_state.prompt_logic
 
@@ -222,7 +228,7 @@ def generate_prompt():
     fov_sel = st.session_state.get('fov', 'None')
     camera_sel = st.session_state.get('camera', 'None')
     surface_sel = st.session_state.get('surface', 'None')
-    elements_sel = st.session_state.get('surrounding_elements', [])
+    elements_sel = get_selected_surrounding_elements()
 
 
     if logic == "FLUX":
@@ -255,10 +261,8 @@ def generate_prompt():
 
         details_desc = "the entire room, including surrounding furniture, decor elements, and room architecture,"
         if elements_sel:
-            valid_elements = [el for el in elements_sel if el in surrounding_element_options]
-            if valid_elements:
-                elements_string = ", ".join(valid_elements)
-                details_desc = f"the entire room, including specific elements like {elements_string}, along with other furniture and room architecture,"
+            elements_string = ", ".join(elements_sel)
+            details_desc = f"the entire room, including specific elements like {elements_string}, along with other furniture and room architecture,"
 
         subject = f_subtype
         subject_desc_start = subject
@@ -285,6 +289,7 @@ def generate_prompt():
         prompt = (
             f"{fov_text} of a {subject_desc_start} {placement}{surface_desc}, {atmosphere_desc}, "
             f"captured with a Nikon Z7 II camera and a 24mm f/1.2L lens. "
+            # <<< Фраза "for a wide depth of field" удалена ниже vvv
             f"Set the aperture to f/22, ensuring {details_desc} is in sharp focus. "
             f"The composition should {camera_angle_desc}, with the {subject}. "
             f"Adjust the shutter speed to 1/160 to maintain crisp clarity {lighting_condition_desc}. "
@@ -338,7 +343,6 @@ def generate_prompt():
              else:
                  article = "an" if furniture_desc.lower().startswith(("a", "e", "i", "o", "u")) else "a"
                  prompt_start = f"{view_desc} of {article} {furniture_desc.lower()}"
-
         elif furniture_desc:
              prompt_start = furniture_desc
         elif view_desc:
@@ -371,6 +375,70 @@ def generate_negative_prompt():
     if st.session_state.negative_enabled:
         return negative_prompt_base
     return ""
+
+# --- Обновленная функция предпросмотра (полностью) ---
+def generate_composition_preview():
+    """Генерирует текстовое описание композиции на английском языке."""
+    # <<< ЗАГОЛОВОК И МЕТКИ ПЕРЕВЕДЕНЫ НА АНГЛИЙСКИЙ >>>
+    preview = ["--- Scene Composition (Textual Preview) ---"]
+
+    # 1. Обзор (FOV, Camera)
+    fov_desc = st.session_state.get('fov', 'None')
+    cam_desc = st.session_state.get('camera', 'None')
+    view_parts = []
+    if fov_desc != 'None': view_parts.append(f"FOV: {fov_desc}")
+    if cam_desc != 'None': view_parts.append(f"Angle: {cam_desc}")
+    preview.append(f"View: {', '.join(view_parts) if view_parts else 'Default'}") # Переведено
+
+    # 2. Основной объект и поверхность
+    f_type = st.session_state.get('furniture_type', 'None')
+    f_subtype = st.session_state.get('furniture_subtype', 'None')
+    surface_sel = st.session_state.get('surface', 'None')
+    surface_text = surface_options.get(surface_sel, '')
+
+    if f_subtype != 'None':
+        obj_line = f"Center: {f_subtype}" # Переведено
+        if f_type == "Rugs":
+             placement = " (on floor)" # Переведено
+             if surface_sel != 'None' and 'rug' in surface_text.lower():
+                  placement += f" ({surface_text.strip()})"
+             obj_line += placement
+        elif surface_sel != 'None' and surface_text and surface_text != surface_options["None"]:
+             # Убираем начальное "on a " или "on an " для краткости в скобках
+             surface_short = surface_text.replace("on a ", "").replace("on an ", "").strip()
+             obj_line += f" ({surface_short})"
+        preview.append(obj_line)
+    else:
+         preview.append("Center: (No main object selected)") # Переведено
+
+    # 3. Окружающие элементы
+    preview.append("\nSurroundings:") # Переведено
+    elements_left = [item for item in surrounding_details_structured["Left Zone"] if st.session_state.get(item, False)]
+    elements_wall = [item for item in surrounding_details_structured["Wall / Background"] if st.session_state.get(item, False)]
+    elements_right = [item for item in surrounding_details_structured["Right Zone"] if st.session_state.get(item, False)]
+    elements_general = [item for item in surrounding_details_structured["Foreground / General"] if st.session_state.get(item, False)]
+
+    has_elements = False
+    if elements_left:
+        preview.append(f"  - Left Side: {', '.join(elements_left)}") # Переведено
+        has_elements = True
+    if elements_wall:
+        preview.append(f"  - Wall/Background: {', '.join(elements_wall)}") # Переведено
+        has_elements = True
+    if elements_right:
+        preview.append(f"  - Right Side: {', '.join(elements_right)}") # Переведено
+        has_elements = True
+    if elements_general:
+        preview.append(f"  - Foreground/General: {', '.join(elements_general)}") # Переведено
+        has_elements = True
+
+    if not has_elements:
+         preview.append("  (No extra details selected)") # Переведено
+
+
+    preview.append("\n--- End Preview ---") # Переведено
+    return "\n".join(preview)
+
 
 # ----- UI Definition -----
 with st.sidebar:
@@ -464,14 +532,7 @@ with st.sidebar:
         current_camera = "None"
     st.selectbox("Camera Angle/View", camera_keys, index=camera_keys.index(current_camera), key="camera")
 
-    st.header("Surrounding Details")
-    surrounding_options_actual = surrounding_element_options
-    current_elements = [el for el in st.session_state.surrounding_elements if el in surrounding_options_actual]
-    st.multiselect(
-        "Select surrounding elements to include:", surrounding_options_actual,
-        default=current_elements, key="surrounding_elements",
-        help="Choose specific items visible in the scene for added detail (optional)."
-    )
+    # Убрали Surrounding Details из сайдбара
 
     st.header("Prompt Settings")
     st.checkbox("Add Quality Tokens", value=st.session_state.quality_enabled, key="quality_enabled")
@@ -508,30 +569,58 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# ----- НОВЫЙ UI ДЛЯ ВЫБОРА ОКРУЖАЮЩИХ ДЕТАЛЕЙ -----
+st.divider()
+with st.expander("Configure Surrounding Details (Optional)", expanded=False):
+    current_selected_elements = get_selected_surrounding_elements()
+    # Обновляем глобальный state для использования при сохранении/загрузке
+    st.session_state.surrounding_elements = current_selected_elements
 
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.subheader("Left Zone")
+        for item in surrounding_details_structured["Left Zone"]:
+            st.checkbox(item, key=item, value=(item in current_selected_elements))
+    with col2:
+        st.subheader("Wall / Background")
+        for item in surrounding_details_structured["Wall / Background"]:
+            st.checkbox(item, key=item, value=(item in current_selected_elements))
+    with col3:
+        st.subheader("Right Zone")
+        for item in surrounding_details_structured["Right Zone"]:
+            st.checkbox(item, key=item, value=(item in current_selected_elements))
+
+    st.subheader("Foreground / General")
+    cols_general = st.columns(3)
+    general_items = surrounding_details_structured["Foreground / General"]
+    items_per_col = (len(general_items) + 2) // 3
+    for i, item in enumerate(general_items):
+         with cols_general[i % 3]:
+              st.checkbox(item, key=item, value=(item in current_selected_elements))
+
+st.divider()
+# ----- КОНЕЦ НОВОГО UI -----
+
+
+# ----- Генерация промптов и предпросмотра -----
 main_prompt_generated = generate_prompt()
 negative_prompt_generated = generate_negative_prompt()
+composition_preview_text = generate_composition_preview()
 
 st.subheader("Main Prompt")
 main_prompt_input = st.text_area("Edit or use the generated prompt:", value=main_prompt_generated, height=150, key="main_prompt_area")
 st.session_state.main_prompt = main_prompt_input
 
-# --- Убраны кнопки Copy ---
-# if st.button("Copy Main Prompt"):
-#     # pyperclip.copy(main_prompt_input) # Убрано из-за ошибки в Streamlit Cloud
-#     # st.success("Main prompt copied to clipboard!") # Убрано
-#     st.info("Please select and copy the text manually.") # Заменено на инструкцию
+# --- Отображение текстового предпросмотра ---
+st.subheader("Composition Preview (Textual)") # Заголовок переведен
+st.code(composition_preview_text, language=None) # Вывод текста предпросмотра
+# --- Конец отображения ---
+
 
 if st.session_state.negative_enabled:
     st.subheader("Negative Prompt")
     negative_prompt_input = st.text_area("Edit or use the generated negative prompt:", value=negative_prompt_generated, height=100, key="negative_prompt_area")
     st.session_state.negative_prompt = negative_prompt_input
-
-    # --- Убраны кнопки Copy ---
-    # if st.button("Copy Negative Prompt"):
-    #     # pyperclip.copy(negative_prompt_input) # Убрано
-    #     # st.success("Negative prompt copied to clipboard!") # Убрано
-    #     st.info("Please select and copy the text manually.") # Заменено на инструкцию
 else:
      negative_prompt_input = ""
      st.session_state.negative_prompt = ""
@@ -544,7 +633,7 @@ config_name = st.text_input("Configuration Name", key="config_name_input")
 
 if st.button("Save Configuration", key="save_config_btn"):
     if config_name:
-        saved_elements = [el for el in st.session_state.surrounding_elements if el in surrounding_element_options]
+        elements_to_save = get_selected_surrounding_elements()
         current_f_type_save = st.session_state.furniture_type
         current_f_subtype_save = st.session_state.furniture_subtype
 
@@ -557,7 +646,7 @@ if st.button("Save Configuration", key="save_config_btn"):
             "fov": st.session_state.fov if st.session_state.fov in fov_control else "None",
             "camera": st.session_state.camera if st.session_state.camera in camera_control else "None",
             "surface": st.session_state.surface if st.session_state.surface in surface_options else "None",
-            "surrounding_elements": saved_elements,
+            "surrounding_elements": elements_to_save,
             "quality_enabled": st.session_state.quality_enabled,
             "negative_enabled": st.session_state.negative_enabled,
             "prompt_logic": st.session_state.prompt_logic if st.session_state.prompt_logic in ["SDXL", "FLUX"] else "FLUX",
@@ -587,6 +676,7 @@ if st.session_state.saved_configs:
         with col1_load:
             if st.button("Load Selected Configuration", key="load_config_btn"):
                 config = st.session_state.saved_configs[config_to_load]
+                # Load with validation against current options
                 st.session_state.furniture_type = config.get("furniture_type", "None") if config.get("furniture_type", "None") in furniture_options else "None"
                 st.session_state.furniture_subtype = config.get("furniture_subtype", "None") if st.session_state.furniture_type != "None" and config.get("furniture_subtype", "None") in furniture_options.get(st.session_state.furniture_type, ["None"]) else "None"
                 st.session_state.room_type = config.get("room_type", "None") if config.get("room_type", "None") in room_options else "None"
@@ -595,8 +685,13 @@ if st.session_state.saved_configs:
                 st.session_state.fov = config.get("fov", "None") if config.get("fov", "None") in fov_control else "None"
                 st.session_state.camera = config.get("camera", "None") if config.get("camera", "None") in camera_control else "None"
                 st.session_state.surface = config.get("surface", "None") if config.get("surface", "None") in surface_options else "None"
+
                 loaded_elements = config.get("surrounding_elements", [])
-                st.session_state.surrounding_elements = [el for el in loaded_elements if el in surrounding_element_options]
+                st.session_state.surrounding_elements = [el for el in loaded_elements if el in all_surrounding_options]
+                # Устанавливаем состояние чекбоксов в соответствии с загруженным списком
+                for item in all_surrounding_options:
+                    st.session_state[item] = (item in st.session_state.surrounding_elements)
+
                 st.session_state.quality_enabled = config.get("quality_enabled", True)
                 st.session_state.negative_enabled = config.get("negative_enabled", True)
                 st.session_state.prompt_logic = config.get("prompt_logic", "FLUX") if config.get("prompt_logic", "FLUX") in ["SDXL", "FLUX"] else "FLUX"
